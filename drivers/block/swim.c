@@ -28,7 +28,6 @@
 #include <asm/mac_via.h>
 
 #define CARDNAME "swim"
-#define SWIM_IO_SIZE 0x2000
 
 struct sector_header {
 	unsigned char side;
@@ -216,13 +215,14 @@ struct swim_priv {
 	struct floppy_state unit[FD_MAX_UNIT];
 };
 
-extern int swim_read_sector_header(struct swim *base,
+extern int swim_read_sector_header(struct swim __iomem *base,
 				   struct sector_header *header);
-extern int swim_read_sector_data(struct swim *base, unsigned char *data);
+extern int swim_read_sector_data(struct swim __iomem *base,
+				 unsigned char *data);
 
-static inline void set_swim_mode(struct swim *base, int enable)
+static inline void set_swim_mode(struct swim __iomem *base, int enable)
 {
-	struct iwm *iwm_base;
+	struct iwm __iomem *iwm_base;
 	unsigned long flags;
 
 	if (!enable) {
@@ -230,9 +230,8 @@ static inline void set_swim_mode(struct swim *base, int enable)
 		return;
 	}
 
-	iwm_base = (struct iwm *)base;
-	local_save_flags(flags);
-	local_irq_disable();
+	iwm_base = (struct iwm __iomem *)base;
+	local_irq_save(flags);
 
 	iwm_read(iwm_base, q7L);
 	iwm_read(iwm_base, mtrOff);
@@ -246,12 +245,11 @@ static inline void set_swim_mode(struct swim *base, int enable)
 	local_irq_restore(flags);
 }
 
-static inline int get_swim_mode(struct swim *base)
+static inline int get_swim_mode(struct swim __iomem *base)
 {
 	unsigned long flags;
 
-	local_save_flags(flags);
-	local_irq_disable();
+	local_irq_save(flags);
 
 	swim_write(base, phase, 0xf5);
 	if (swim_read(base, phase) != 0xf5)
@@ -269,7 +267,7 @@ is_iwm:
 	return 0;
 }
 
-static inline void swim_select(struct swim *base, int sel)
+static inline void swim_select(struct swim __iomem *base, int sel)
 {
 	swim_write(base, phase, RELAX);
 
@@ -278,12 +276,11 @@ static inline void swim_select(struct swim *base, int sel)
 	swim_write(base, phase, sel & CA_MASK);
 }
 
-static inline void swim_action(struct swim *base, int action)
+static inline void swim_action(struct swim __iomem *base, int action)
 {
 	unsigned long flags;
 
-	local_save_flags(flags);
-	local_irq_disable();
+	local_irq_save(flags);
 
 	swim_select(base, action);
 	udelay(1);
@@ -295,7 +292,7 @@ static inline void swim_action(struct swim *base, int action)
 	local_irq_restore(flags);
 }
 
-static inline int swim_readbit(struct swim *base, int bit)
+static inline int swim_readbit(struct swim __iomem *base, int bit)
 {
 	int stat;
 
@@ -308,7 +305,8 @@ static inline int swim_readbit(struct swim *base, int bit)
 	return (stat & SENSE) == 0;
 }
 
-static inline void swim_drive(struct swim *base, enum drive_location location)
+static inline void swim_drive(struct swim __iomem *base,
+			      enum drive_location location)
 {
 	if (location == INTERNAL_DRIVE) {
 		swim_write(base, mode0, EXTERNAL_DRIVE); /* clear drive 1 bit */
@@ -319,7 +317,8 @@ static inline void swim_drive(struct swim *base, enum drive_location location)
 	}
 }
 
-static inline void swim_motor(struct swim *base, enum motor_action action)
+static inline void swim_motor(struct swim __iomem *base,
+			      enum motor_action action)
 {
 	if (action == ON) {
 		int i;
@@ -339,7 +338,7 @@ static inline void swim_motor(struct swim *base, enum motor_action action)
 	}
 }
 
-static inline void swim_eject(struct swim *base)
+static inline void swim_eject(struct swim __iomem *base)
 {
 	int i;
 
@@ -355,7 +354,7 @@ static inline void swim_eject(struct swim *base)
 	swim_select(base, RELAX);
 }
 
-static inline void swim_head(struct swim *base, enum head head)
+static inline void swim_head(struct swim __iomem *base, enum head head)
 {
 	/* wait drive is ready */
 
@@ -365,7 +364,7 @@ static inline void swim_head(struct swim *base, enum head head)
 		swim_select(base, READ_DATA_0);
 }
 
-static inline int swim_step(struct swim *base)
+static inline int swim_step(struct swim __iomem *base)
 {
 	int wait;
 
@@ -383,7 +382,7 @@ static inline int swim_step(struct swim *base)
 	return -1;
 }
 
-static inline int swim_track00(struct swim *base)
+static inline int swim_track00(struct swim __iomem *base)
 {
 	int try;
 
@@ -405,7 +404,7 @@ static inline int swim_track00(struct swim *base)
 	return -1;
 }
 
-static inline int swim_seek(struct swim *base, int step)
+static inline int swim_seek(struct swim __iomem *base, int step)
 {
 	if (step == 0)
 		return 0;
@@ -426,7 +425,7 @@ static inline int swim_seek(struct swim *base, int step)
 
 static inline int swim_track(struct floppy_state *fs,  int track)
 {
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 	int ret;
 
 	ret = swim_seek(base, track - fs->track);
@@ -443,7 +442,7 @@ static inline int swim_track(struct floppy_state *fs,  int track)
 
 static int floppy_eject(struct floppy_state *fs)
 {
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 
 	swim_drive(base, fs->location);
 	swim_motor(base, OFF);
@@ -459,7 +458,7 @@ static inline int swim_read_sector(struct floppy_state *fs,
 				   int side, int track,
 				   int sector, unsigned char *buffer)
 {
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 	unsigned long flags;
 	struct sector_header header;
 	int ret = -1;
@@ -471,8 +470,7 @@ static inline int swim_read_sector(struct floppy_state *fs,
 	swim_head(base, side);
 	swim_write(base, mode0, side);
 
-	local_save_flags(flags);
-	local_irq_disable();
+	local_irq_save(flags);
 	for (i = 0; i < 36; i++) {
 		ret = swim_read_sector_header(base, &header);
 		if (!ret && (header.sector == sector)) {
@@ -497,7 +495,7 @@ static int floppy_read_sectors(struct floppy_state *fs,
 			       int req_sector, int sectors_nb,
 			       unsigned char *buffer)
 {
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 	int ret;
 	int side, track, sector;
 	int i, try;
@@ -578,10 +576,10 @@ static void do_fd_request(struct request_queue *q)
 }
 
 static struct floppy_struct floppy_type[4] = {
-	{    0,  0, 0,  0, 0, 0x00, 0x00, 0x00, 0x00, NULL }, /* no testing */
+	{    0,  0, 0,  0, 0, 0x00, 0x00, 0x00, 0x00, NULL }, /* no testing   */
 	{  720,  9, 1, 80, 0, 0x2A, 0x02, 0xDF, 0x50, NULL }, /* 360KB SS 3.5"*/
-	{ 1440,  9, 2, 80, 0, 0x2A, 0x02, 0xDF, 0x50, NULL }, /* 720KB 3.5" */
-	{ 2880, 18, 2, 80, 0, 0x1B, 0x00, 0xCF, 0x6C, NULL }, /* 1.44MB 3.5" */
+	{ 1440,  9, 2, 80, 0, 0x2A, 0x02, 0xDF, 0x50, NULL }, /* 720KB 3.5"   */
+	{ 2880, 18, 2, 80, 0, 0x1B, 0x00, 0xCF, 0x6C, NULL }, /* 1.44MB 3.5"  */
 };
 
 static int get_floppy_geometry(struct floppy_state *fs, int type,
@@ -604,7 +602,7 @@ static int get_floppy_geometry(struct floppy_state *fs, int type,
 
 static void setup_medium(struct floppy_state *fs)
 {
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 
 	if (swim_readbit(base, DISK_IN)) {
 		struct floppy_struct *g;
@@ -631,7 +629,7 @@ static void setup_medium(struct floppy_state *fs)
 static int floppy_open(struct block_device *bdev, fmode_t mode)
 {
 	struct floppy_state *fs = bdev->bd_disk->private_data;
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 	int err;
 
 	if (fs->ref_count == -1 || (fs->ref_count && mode & FMODE_EXCL))
@@ -679,7 +677,7 @@ out:
 static int floppy_release(struct gendisk *disk, fmode_t mode)
 {
 	struct floppy_state *fs = disk->private_data;
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 
 	if (fs->ref_count < 0)
 		fs->ref_count = 0;
@@ -709,7 +707,7 @@ static int floppy_ioctl(struct block_device *bdev, fmode_t mode,
 		return err;
 
 	case FDGETPRM:
-		if (copy_to_user((void *) param, (void *) &floppy_type,
+		if (copy_to_user((void __user *) param, (void *) &floppy_type,
 				 sizeof(struct floppy_struct)))
 			return -EFAULT;
 		break;
@@ -749,7 +747,7 @@ static int floppy_check_change(struct gendisk *disk)
 static int floppy_revalidate(struct gendisk *disk)
 {
 	struct floppy_state *fs = disk->private_data;
-	struct swim *base = fs->swd->base;
+	struct swim __iomem *base = fs->swd->base;
 
 	swim_drive(base, fs->location);
 
@@ -790,7 +788,7 @@ static int __devinit swim_add_floppy(struct swim_priv *swd,
 				     enum drive_location location)
 {
 	struct floppy_state *fs = &swd->unit[swd->floppy_count];
-	struct swim *base = swd->base;
+	struct swim __iomem *base = swd->base;
 
 	fs->location = location;
 
@@ -814,7 +812,7 @@ static int __devinit swim_floppy_init(struct swim_priv *swd)
 {
 	int err;
 	int drive;
-	struct swim *base = swd->base;
+	struct swim __iomem *base = swd->base;
 
 	/* scan floppy drives */
 
@@ -876,7 +874,7 @@ exit_put_disks:
 static int __devinit swim_probe(struct platform_device *dev)
 {
 	struct resource *res;
-	struct swim *swim_base;
+	struct swim __iomem *swim_base;
 	struct swim_priv *swd;
 	int ret;
 
@@ -886,12 +884,12 @@ static int __devinit swim_probe(struct platform_device *dev)
 		goto out;
 	}
 
-	if (!request_mem_region(res->start, SWIM_IO_SIZE, CARDNAME)) {
+	if (!request_mem_region(res->start, resource_size(res), CARDNAME)) {
 		ret = -EBUSY;
 		goto out;
 	}
 
-	swim_base = (struct swim *)ioremap(res->start, SWIM_IO_SIZE);
+	swim_base = ioremap(res->start, resource_size(res));
 	if (!swim_base) {
 		return -ENOMEM;
 		goto out_release_io;
@@ -929,7 +927,7 @@ out_kfree:
 out_iounmap:
 	iounmap(swim_base);
 out_release_io:
-	release_mem_region(res->start, SWIM_IO_SIZE);
+	release_mem_region(res->start, resource_size(res));
 out:
 	return ret;
 }
@@ -960,7 +958,7 @@ static int __devexit swim_remove(struct platform_device *dev)
 
 	res = platform_get_resource_byname(dev, IORESOURCE_MEM, "swim-regs");
 	if (res)
-		release_mem_region(res->start, SWIM_IO_SIZE);
+		release_mem_region(res->start, resource_size(res));
 
 	platform_set_drvdata(dev, NULL);
 	kfree(swd);
@@ -970,7 +968,7 @@ static int __devexit swim_remove(struct platform_device *dev)
 
 static struct platform_driver swim_driver = {
 	.probe  = swim_probe,
-	.remove = swim_remove,
+	.remove = __devexit_p(swim_remove),
 	.driver   = {
 		.name	= CARDNAME,
 		.owner	= THIS_MODULE,

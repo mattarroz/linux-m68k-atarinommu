@@ -44,6 +44,10 @@
 #include <asm/mac_oss.h>
 #include <asm/mac_psc.h>
 
+/* platform device info */
+
+#define SWIM_IO_SIZE 0x2000	/* SWIM IO resource size */
+
 /* Mac bootinfo struct */
 
 struct mac_booter_data mac_bi_data;
@@ -917,7 +921,7 @@ int __init mac_platform_init(void)
 
 	swim_resources[0].name = "swim-regs";
 	swim_resources[0].start = (resource_size_t)swim_base;
-	swim_resources[0].end = (resource_size_t)(swim_base + 0x2000);
+	swim_resources[0].end = (resource_size_t)(swim_base + SWIM_IO_SIZE);
 	swim_resources[0].flags = IORESOURCE_MEM;
 
 	return platform_add_devices(mac_platform_devices,

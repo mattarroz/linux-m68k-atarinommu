@@ -447,4 +447,14 @@ struct dmi_system_id {
 
 #define DMI_MATCH(a, b)	{ a, b }
 
+struct zorro_device_id {
+	__u32 id;			/* Device ID or ZORRO_WILDCARD */
+	kernel_ulong_t driver_data;	/* Data private to the driver */
+};
+
+#define ZORRO_WILDCARD			(0xffffffff)	/* not official */
+
+#define ZORRO_DEVICE_MODALIAS_FMT	"zorro:i%08X"
+
+
 #endif /* LINUX_MOD_DEVICETABLE_H */

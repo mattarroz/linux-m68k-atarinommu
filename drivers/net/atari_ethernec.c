@@ -124,7 +124,7 @@ static const char version2[] =
 /* A zero-terminated list of I/O addresses to be probed at boot. */
 #ifndef MODULE
 static unsigned int netcard_portlist[] __initdata = {
-	0x300, 0x280, 0x320, 0x340, 0x360, 0x380, 0
+	0x300, 0
 };
 #endif
 
@@ -226,6 +226,14 @@ static wait_queue_head_t WaitQ;
 static struct delayed_work tqueue;
 
 static struct net_device *poll_dev = NULL;
+
+irqreturn_t atari_ei_interrupt(int irq, void *dev_id)
+{
+	struct net_device *dev = dev_id;
+	if (netif_running(dev))
+		return ei_interrupt(dev->irq, dev);
+	return IRQ_NONE;
+}
 
 static void atari_ethernec_int(struct work_struct *work)
 {
@@ -619,7 +627,7 @@ static int __init ne_probe1(struct net_device *dev, int ioaddr)
 			mfp.tim_ct_cd = (mfp.tim_ct_cd & 0xf0) | 0x6;
 		}
 		/* Must make this shared in case other timer ints are needed */
-		ret = request_irq(dev->irq, ei_interrupt, IRQF_SHARED, name, dev);
+		ret = request_irq(dev->irq, atari_ei_interrupt, IRQF_SHARED, name, dev);
 		if (ret) {
 			printk(" unable to get IRQ %d (errno=%d), polling instead.\n",
 			       dev->irq, ret);
@@ -941,9 +949,9 @@ retry:
 
 
 #ifdef MODULE
-#define MAX_NE_CARDS	4	/* Max number of NE cards per module */
+#define MAX_NE_CARDS	1	/* Max number of NE cards per module */
 static struct net_device *dev_ne[MAX_NE_CARDS];
-static int io[MAX_NE_CARDS];
+static int io[MAX_NE_CARDS] = { 0x300 };
 static int irq[MAX_NE_CARDS];
 static int bad[MAX_NE_CARDS];	/* 0xbad = bad sig or no reset ack */
 

@@ -89,7 +89,7 @@ static irqreturn_t scc_rx_int(int irq, void *data);
 static irqreturn_t scc_stat_int(int irq, void *data);
 static irqreturn_t scc_spcond_int(int irq, void *data);
 static void scc_setsignals(struct scc_port *port, int dtr, int rts);
-static void scc_break_ctl(struct tty_struct *tty, int break_state);
+static int scc_break_ctl(struct tty_struct *tty, int break_state);
 
 static struct tty_driver *scc_driver;
 
@@ -1385,7 +1385,7 @@ static int scc_ioctl(struct tty_struct *tty, struct file *file,
 }
 
 
-static void scc_break_ctl(struct tty_struct *tty, int break_state)
+static int scc_break_ctl(struct tty_struct *tty, int break_state)
 {
 	struct scc_port *port = (struct scc_port *)tty->driver_data;
 	unsigned long flags;
@@ -1396,6 +1396,8 @@ static void scc_break_ctl(struct tty_struct *tty, int break_state)
 	SCCmod(TX_CTRL_REG, ~TCR_SEND_BREAK, break_state ? TCR_SEND_BREAK : 0);
 	local_irq_restore(flags);
 	pr_debug("SCC: break ctl done!\n");
+
+	return 0;
 }
 
 

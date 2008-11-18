@@ -14,6 +14,11 @@
 #define _ASM_GENERIC__TLB_H
 
 #include <linux/swap.h>
+
+#ifndef CONFIG_SWAP
+#include <linux/pagemap.h>
+#endif
+
 #include <asm/pgalloc.h>
 #include <asm/tlbflush.h>
 

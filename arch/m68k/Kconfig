@@ -124,6 +124,16 @@ config ATARI
 	  this kernel on an Atari, say Y here and browse the material
 	  available in <file:Documentation/m68k>; otherwise say N.
 
+config ATARI_ROM_ISA
+	bool "Atari ROM port ISA adapter support"
+	depends on ATARI
+	help
+	  This option enables support for the ROM port ISA adapter used to
+	  operate ISA cards on Atari. Only 8  bit cards are supported, and
+	  no interrupt lines are connected.
+	  The only driver currently using this adapter is the EtherNEC
+	  driver for RTL8019AS based NE2000 compatible network cards.
+
 config MAC
 	bool "Macintosh support"
 	select MMU_MOTOROLA if MMU

@@ -80,9 +80,26 @@ extern unsigned long gg2_isa_base;
 #endif
 #endif /* AMIGA_PCMCIA */
 
+#ifdef CONFIG_ATARI_ROM_ISA
+
+#define enec_isa_read_base  0xfffa0000
+#define enec_isa_write_base 0xfffb0000
+
+#define ENEC_ISA_IO_B(ioaddr)	(enec_isa_read_base+((((unsigned long)(ioaddr))&0x1F)<<9))
+#define ENEC_ISA_IO_W(ioaddr)	(enec_isa_read_base+((((unsigned long)(ioaddr))&0x1F)<<9))
+#define ENEC_ISA_MEM_B(madr)	(enec_isa_read_base+((((unsigned long)(madr))&0x1F)<<9))
+#define ENEC_ISA_MEM_W(madr)	(enec_isa_read_base+((((unsigned long)(madr))&0x1F)<<9))
+
+#ifndef MULTI_ISA
+#define MULTI_ISA 0
+#else
+#undef MULTI_ISA
+#define MULTI_ISA 1
+#endif
+#endif /* ATARI_ROM_ISA */
 
 
-#ifdef CONFIG_ISA
+#if defined(CONFIG_ISA) || defined(CONFIG_ATARI_ROM_ISA)
 
 #if MULTI_ISA == 0
 #undef MULTI_ISA
@@ -91,6 +108,7 @@ extern unsigned long gg2_isa_base;
 #define ISA_TYPE_Q40 (1)
 #define ISA_TYPE_GG2 (2)
 #define ISA_TYPE_AG  (3)
+#define ISA_TYPE_ENEC (4)
 
 #if defined(CONFIG_Q40) && !defined(MULTI_ISA)
 #define ISA_TYPE ISA_TYPE_Q40
@@ -102,6 +120,10 @@ extern unsigned long gg2_isa_base;
 #endif
 #if defined(CONFIG_GG2) && !defined(MULTI_ISA)
 #define ISA_TYPE ISA_TYPE_GG2
+#define ISA_SEX  0
+#endif
+#if defined(CONFIG_ATARI_ROM_ISA) && !defined(MULTI_ISA)
+#define ISA_TYPE ISA_TYPE_ENEC
 #define ISA_SEX  0
 #endif
 
@@ -131,6 +153,9 @@ static inline u8 __iomem *isa_itb(unsigned long addr)
 #ifdef CONFIG_AMIGA_PCMCIA
     case ISA_TYPE_AG: return (u8 __iomem *)AG_ISA_IO_B(addr);
 #endif
+#ifdef CONFIG_ATARI_ROM_ISA
+    case ISA_TYPE_ENEC: return (u8 __iomem *)ENEC_ISA_IO_B(addr);
+#endif
     default: return NULL; /* avoid warnings, just in case */
     }
 }
@@ -146,6 +171,9 @@ static inline u16 __iomem *isa_itw(unsigned long addr)
 #endif
 #ifdef CONFIG_AMIGA_PCMCIA
     case ISA_TYPE_AG: return (u16 __iomem *)AG_ISA_IO_W(addr);
+#endif
+#ifdef CONFIG_ATARI_ROM_ISA
+    case ISA_TYPE_ENEC: return (u16 __iomem *)ENEC_ISA_IO_W(addr);
 #endif
     default: return NULL; /* avoid warnings, just in case */
     }
@@ -173,6 +201,9 @@ static inline u8 __iomem *isa_mtb(unsigned long addr)
 #ifdef CONFIG_AMIGA_PCMCIA
     case ISA_TYPE_AG: return (u8 __iomem *)addr;
 #endif
+#ifdef CONFIG_ATARI_ROM_ISA
+    case ISA_TYPE_ENEC: return (u8 __iomem *)ENEC_ISA_MEM_B(addr);
+#endif
     default: return NULL; /* avoid warnings, just in case */
     }
 }
@@ -188,6 +219,9 @@ static inline u16 __iomem *isa_mtw(unsigned long addr)
 #endif
 #ifdef CONFIG_AMIGA_PCMCIA
     case ISA_TYPE_AG: return (u16 __iomem *)addr;
+#endif
+#ifdef CONFIG_ATARI_ROM_ISA
+    case ISA_TYPE_ENEC: return (u16 __iomem *)ENEC_ISA_MEM_W(addr);
 #endif
     default: return NULL; /* avoid warnings, just in case */
     }
@@ -210,6 +244,34 @@ static inline u16 __iomem *isa_mtw(unsigned long addr)
 	(ISA_SEX ? out_be16(isa_mtw((unsigned long)(p)),(val))	\
 		 : out_le16(isa_mtw((unsigned long)(p)),(val)))
 
+#ifdef CONFIG_ATARI_ROM_ISA
+#define isa_rom_inb(port)      rom_in_8(isa_itb(port))
+#define isa_rom_inw(port)	\
+	(ISA_SEX ? rom_in_be16(isa_itw(port))	\
+		 : rom_in_le16(isa_itw(port)))
+#define isa_rom_inl(port)	\
+	(ISA_SEX ? rom_in_be32(isa_itw(port))	\
+		 : rom_in_le32(isa_itw(port)))
+
+#define isa_rom_outb(val, port) rom_out_8(isa_itb(port), (val))
+#define isa_rom_outw(val, port)	\
+	(ISA_SEX ? rom_out_be16(isa_itw(port), (val))	\
+		 : rom_out_le16(isa_itw(port), (val)))
+#define isa_rom_outl(val, port)	\
+	(ISA_SEX ? rom_out_be32(isa_itw(port), (val))	\
+		 : rom_out_le32(isa_itw(port), (val)))
+
+#define isa_rom_readb(p)       rom_in_8(isa_mtb((unsigned long)(p)))
+#define isa_rom_readw(p)       \
+	(ISA_SEX ? rom_in_be16(isa_mtw((unsigned long)(p)))	\
+		 : rom_in_le16(isa_mtw((unsigned long)(p))))
+
+#define isa_rom_writeb(val, p)  rom_out_8(isa_mtb((unsigned long)(p)), (val))
+#define isa_rom_writew(val, p)  \
+	(ISA_SEX ? rom_out_be16(isa_mtw((unsigned long)(p)), (val))	\
+		 : rom_out_le16(isa_mtw((unsigned long)(p)), (val)))
+#endif /* CONFIG_ATARI_ROM_ISA */
+
 static inline void isa_delay(void)
 {
   switch(ISA_TYPE)
@@ -222,6 +284,9 @@ static inline void isa_delay(void)
 #endif
 #ifdef CONFIG_AMIGA_PCMCIA
     case ISA_TYPE_AG: break;
+#endif
+#ifdef CONFIG_ATARI_ROM_ISA
+    case ISA_TYPE_ENEC: break;
 #endif
     default: break; /* avoid warnings */
     }
@@ -254,6 +319,39 @@ static inline void isa_delay(void)
                   raw_outsw_swapw(isa_itw(port), (u16 *)(buf), (nr)<<1))
 
 
+#ifdef CONFIG_ATARI_ROM_ISA
+#define isa_rom_inb_p(p)	({ u8 _v = isa_rom_inb(p); isa_delay(); _v; })
+#define isa_rom_inw_p(p)	({ u16 _v = isa_rom_inw(p); isa_delay(); _v; })
+#define isa_rom_inl_p(p)	({ u32 _v = isa_rom_inl(p); isa_delay(); _v; })
+#define isa_rom_outb_p(v, p)	({ isa_rom_outb((v), (p)); isa_delay(); })
+#define isa_rom_outw_p(v, p)	({ isa_rom_outw((v), (p)); isa_delay(); })
+#define isa_rom_outl_p(v, p)	({ isa_rom_outl((v), (p)); isa_delay(); })
+
+#define isa_rom_insb(port, buf, nr) raw_rom_insb(isa_itb(port), (u8 *)(buf), (nr))
+
+#define isa_rom_insw(port, buf, nr)     \
+       (ISA_SEX ? raw_rom_insw(isa_itw(port), (u16 *)(buf), (nr)) :    \
+		  raw_rom_insw_swapw(isa_itw(port), (u16 *)(buf), (nr)))
+
+#define isa_rom_insl(port, buf, nr)     \
+       (ISA_SEX ? raw_rom_insl(isa_itw(port), (u32 *)(buf), (nr)) :    \
+                  raw_rom_insw_swapw(isa_itw(port), (u16 *)(buf), (nr)<<1))
+
+#define isa_rom_outsb(port, buf, nr) raw_rom_outsb(isa_itb(port), (u8 *)(buf), (nr))
+
+#define isa_rom_outsw(port, buf, nr)    \
+       (ISA_SEX ? raw_rom_outsw(isa_itw(port), (u16 *)(buf), (nr)) :  \
+		  raw_rom_outsw_swapw(isa_itw(port), (u16 *)(buf), (nr)))
+
+#define isa_rom_outsl(port, buf, nr)    \
+       (ISA_SEX ? raw_rom_outsl(isa_itw(port), (u32 *)(buf), (nr)) :  \
+                  raw_rom_outsw_swapw(isa_itw(port), (u16 *)(buf), (nr)<<1))
+#endif /* CONFIG_ATARI_ROM_ISA */
+
+#endif  /* CONFIG_ISA || CONFIG_ATARI_ROM_ISA */
+
+
+#if defined(CONFIG_ISA) && !defined(CONFIG_ATARI_ROM_ISA)
 #define inb     isa_inb
 #define inb_p   isa_inb_p
 #define outb    isa_outb
@@ -276,9 +374,45 @@ static inline void isa_delay(void)
 #define readw   isa_readw
 #define writeb  isa_writeb
 #define writew  isa_writew
+#endif  /* CONFIG_ISA && !CONFIG_ATARI_ROM_ISA */
 
-#else  /* CONFIG_ISA */
+#ifdef CONFIG_ATARI_ROM_ISA
+/*
+ * kernel with both ROM port ISA and IDE compiled in, those have
+ * conflicting defs for in/out. Simply consider port < 1024
+ * ROM port ISA and everything else regular ISA for IDE. read,write not defined
+ * in this case
+ */
+#define inb(port)	((port) < 1024 ? isa_rom_inb(port) : in_8(port))
+#define inb_p(port)	((port) < 1024 ? isa_rom_inb_p(port) : in_8(port))
+#define inw(port)	((port) < 1024 ? isa_rom_inw(port) : in_le16(port))
+#define inw_p(port)	((port) < 1024 ? isa_rom_inw_p(port) : in_le16(port))
+#define inl(port)	((port) < 1024 ? isa_rom_inl(port) : in_le32(port))
+#define inl_p(port)	((port) < 1024 ? isa_rom_inl_p(port) : in_le32(port))
 
+#define outb(val, port)	((port) < 1024 ? isa_rom_outb((val), (port)) : out_8((port), (val)))
+#define outb_p(val, port) ((port) < 1024 ? isa_rom_outb_p((val), (port)) : out_8((port), (val)))
+#define outw(val, port)	((port) < 1024 ? isa_rom_outw((val), (port)) : out_le16((port), (val)))
+#define outw_p(val, port) ((port) < 1024 ? isa_rom_outw_p((val), (port)) : out_le16((port), (val)))
+#define outl(val, port)	((port) < 1024 ? isa_rom_outl((val), (port)) : out_le32((port), (val)))
+#define outl_p(val, port) ((port) < 1024 ? isa_rom_outl_p((val), (port)) : out_le32((port), (val)))
+
+#define insb    isa_rom_insb
+#define insw    isa_rom_insw
+#define insl    isa_rom_insl
+#define outsb   isa_rom_outsb
+#define outsw   isa_rom_outsw
+#define outsl   isa_rom_outsl
+
+#define readb   isa_readb
+#define readw   isa_readw
+#define writeb  isa_writeb
+#define writew  isa_writew
+#define readsl  raw_insl
+#define writesl raw_outsl
+#endif /* CONFIG_ATARI_ROM_ISA */
+
+#if !defined(CONFIG_ISA) && !defined(CONFIG_ATARI_ROM_ISA)
 /*
  * We need to define dummy functions for GENERIC_IOMAP support.
  */
@@ -306,7 +440,7 @@ static inline void isa_delay(void)
 #define readw(addr)      in_le16(addr)
 #define writew(val,addr) out_le16((addr),(val))
 
-#endif /* CONFIG_ISA */
+#endif /* !CONFIG_ISA && !CONFIG_ATARI_ROM_ISA */
 
 #define readl(addr)      in_le32(addr)
 #define writel(val,addr) out_le32((addr),(val))

@@ -13,6 +13,7 @@
 #include <linux/console.h>
 #include <linux/string.h>
 #include <linux/kernel.h>
+#include <linux/module.h>
 #include <linux/io.h>
 #include <asm/machdep.h>
 #include <asm/natfeat.h>
@@ -31,6 +32,8 @@ asm("\n"
 "	.long	nf_get_id,1b\n"
 "	.long	nf_call,1b\n"
 "	.previous");
+EXPORT_SYMBOL_GPL(nf_get_id);
+EXPORT_SYMBOL_GPL(nf_call);
 
 static int stderr_id;
 

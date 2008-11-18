@@ -101,6 +101,8 @@ static const struct tty_operations nfcon_tty_ops = {
 	.write_room	= nfcon_tty_write_room,
 };
 
+#ifndef MODULE
+
 static int __init nf_debug_setup(char *arg)
 {
 	if (strcmp(arg, "nfcon"))
@@ -116,6 +118,8 @@ static int __init nf_debug_setup(char *arg)
 }
 
 early_param("debug", nf_debug_setup);
+
+#endif /* !MODULE */
 
 static int __init nfcon_init(void)
 {

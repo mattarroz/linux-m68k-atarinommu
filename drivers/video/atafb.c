@@ -122,7 +122,6 @@ static struct atafb_par {
 	void *screen_base;
 	int yres_virtual;
 	u_long next_line;
-	u_long next_plane;
 #if defined ATAFB_TT || defined ATAFB_STE
 	union {
 		struct {
@@ -149,6 +148,7 @@ static struct atafb_par {
 			short mono;
 			short ste_mode;
 			short bpp;
+			u32 pseudo_palette[16];
 		} falcon;
 #endif
 		/* Nothing needed for external mode */
@@ -614,7 +614,7 @@ static int tt_encode_fix(struct fb_fix_screeninfo *fix, struct atafb_par *par)
 	fix->xpanstep = 0;
 	fix->ypanstep = 1;
 	fix->ywrapstep = 0;
-	fix->line_length = 0;
+	fix->line_length = par->next_line;
 	fix->accel = FB_ACCEL_ATARIBLITT;
 	return 0;
 }
@@ -884,10 +884,6 @@ static int vdl_prescale[4][3] = {
 /* Default hsync timing [mon_type] in picoseconds */
 static long h_syncs[4] = { 3000000, 4875000, 4000000, 4875000 };
 
-#ifdef FBCON_HAS_CFB16
-static u16 fbcon_cfb16_cmap[16];
-#endif
-
 static inline int hxx_prescale(struct falcon_hw *hw)
 {
 	return hw->ste_mode ? 16
@@ -918,7 +914,8 @@ static int falcon_encode_fix(struct fb_fix_screeninfo *fix,
 		fix->visual = FB_VISUAL_TRUECOLOR;
 		fix->xpanstep = 2;
 	}
-	fix->line_length = 0;
+	fix->line_length =
+		(par->hw.falcon.line_width + par->hw.falcon.line_offset) * 2;
 	fix->accel = FB_ACCEL_ATARIBLITT;
 	return 0;
 }
@@ -1394,14 +1391,7 @@ set_screen_base:
 	par->screen_base = screen_base + var->yoffset * linelen;
 	par->hw.falcon.xoffset = 0;
 
-	// FIXME!!! sort of works, no crash
-	//par->next_line = linelen;
-	//par->next_plane = yres_virtual * linelen;
 	par->next_line = linelen;
-	par->next_plane = 2;
-	// crashes
-	//par->next_plane = linelen;
-	//par->next_line  = yres_virtual * linelen;
 
 	return 0;
 }
@@ -1707,8 +1697,10 @@ static int falcon_pan_display(struct fb_var_screeninfo *var,
 	}
 	par->hw.falcon.line_offset = bpp *
 		(info->var.xres_virtual - info->var.xres) / 16;
+#if 0
 	if (par->hw.falcon.xoffset)
 		par->hw.falcon.line_offset -= bpp;
+#endif;
 	xoffset = var->xoffset - par->hw.falcon.xoffset;
 
 	par->screen_base = screen_base +
@@ -1735,10 +1727,10 @@ static int falcon_setcolreg(unsigned int regno, unsigned int red,
 			(((red & 0xe000) >> 13) | ((red & 0x1000) >> 12) << 8) |
 			(((green & 0xe000) >> 13) | ((green & 0x1000) >> 12) << 4) |
 			((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
-#ifdef FBCON_HAS_CFB16
-		fbcon_cfb16_cmap[regno] = ((red & 0xf800) |
-					   ((green & 0xfc00) >> 5) |
-					   ((blue & 0xf800) >> 11));
+#ifdef ATAFB_FALCON
+		((u32 *)info->pseudo_palette)[regno] = ((red & 0xf800) |
+						       ((green & 0xfc00) >> 5) |
+						       ((blue & 0xf800) >> 11));
 #endif
 	}
 	return 0;
@@ -1852,7 +1844,7 @@ static int stste_encode_fix(struct fb_fix_screeninfo *fix,
 		fix->ypanstep = 0;
 	}
 	fix->ywrapstep = 0;
-	fix->line_length = 0;
+	fix->line_length = par->next_line;
 	fix->accel = FB_ACCEL_ATARIBLITT;
 	return 0;
 }
@@ -2169,7 +2161,7 @@ static int ext_encode_fix(struct fb_fix_screeninfo *fix, struct atafb_par *par)
 	fix->xpanstep = 0;
 	fix->ypanstep = 0;
 	fix->ywrapstep = 0;
-	fix->line_length = 0;
+	fix->line_length = par->next_line;
 	return 0;
 }
 
@@ -2443,42 +2435,6 @@ static void atafb_set_disp(struct fb_info *info)
 	atafb_get_fix(&info->fix, info);
 
 	info->screen_base = (void *)info->fix.smem_start;
-
-	switch (info->fix.type) {
-	case FB_TYPE_INTERLEAVED_PLANES:
-		switch (info->var.bits_per_pixel) {
-		case 2:
-			// display->dispsw = &fbcon_iplan2p2;
-			break;
-		case 4:
-			// display->dispsw = &fbcon_iplan2p4;
-			break;
-		case 8:
-			// display->dispsw = &fbcon_iplan2p8;
-			break;
-		}
-		break;
-	case FB_TYPE_PACKED_PIXELS:
-		switch (info->var.bits_per_pixel) {
-#ifdef FBCON_HAS_MFB
-		case 1:
-			// display->dispsw = &fbcon_mfb;
-			break;
-#endif
-#ifdef FBCON_HAS_CFB8
-		case 8:
-			// display->dispsw = &fbcon_cfb8;
-			break;
-#endif
-#ifdef FBCON_HAS_CFB16
-		case 16:
-			// display->dispsw = &fbcon_cfb16;
-			// display->dispsw_data = fbcon_cfb16_cmap;
-			break;
-#endif
-		}
-		break;
-	}
 }
 
 static int atafb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
@@ -2549,6 +2505,13 @@ static void atafb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
 	if (!rect->width || !rect->height)
 		return;
 
+#ifdef ATAFB_FALCON
+	if (info->var.bits_per_pixel == 16) {
+		cfb_fillrect(info, rect);
+		return;
+	}
+#endif
+
 	/*
 	 * We could use hardware clipping but on many cards you get around
 	 * hardware clipping by writing to framebuffer directly.
@@ -2582,6 +2545,13 @@ static void atafb_copyarea(struct fb_info *info, const struct fb_copyarea *area)
 	int x2, y2;
 	u32 dx, dy, sx, sy, width, height;
 	int rev_copy = 0;
+
+#ifdef ATAFB_FALCON
+	if (info->var.bits_per_pixel == 16) {
+		cfb_copyarea(info, area);
+		return;
+	}
+#endif
 
 	/* clip the destination */
 	x2 = area->dx + area->width;
@@ -2632,6 +2602,13 @@ static void atafb_imageblit(struct fb_info *info, const struct fb_image *image)
 	const char *src;
 	u32 dx, dy, width, height, pitch;
 
+#ifdef ATAFB_FALCON
+	if (info->var.bits_per_pixel == 16) {
+		cfb_imageblit(info, image);
+		return;
+	}
+#endif
+
 	/*
 	 * We could use hardware clipping but on many cards you get around
 	 * hardware clipping by writing to framebuffer directly like we are
@@ -2676,10 +2653,9 @@ static void atafb_imageblit(struct fb_info *info, const struct fb_image *image)
 			src += pitch;
 		}
 	} else {
-		// only used for logo; broken
-		c2p(info->screen_base, image->data, dx, dy, width, height,
-		    par->next_line, par->next_plane, image->width,
-		    info->var.bits_per_pixel);
+		c2p_iplan2(info->screen_base, image->data, dx, dy, width,
+			   height, par->next_line, image->width,
+			   info->var.bits_per_pixel);
 	}
 }
 
@@ -3225,6 +3201,10 @@ int __init atafb_init(void)
 	// tries to read from HW which may not be initialized yet
 	// so set sane var first, then call atafb_set_par
 	atafb_get_var(&fb_info.var, &fb_info);
+
+#ifdef ATAFB_FALCON
+	fb_info.pseudo_palette = current_par.hw.falcon.pseudo_palette;
+#endif
 	fb_info.flags = FBINFO_FLAG_DEFAULT;
 
 	if (!fb_find_mode(&fb_info.var, &fb_info, mode_option, atafb_modedb,

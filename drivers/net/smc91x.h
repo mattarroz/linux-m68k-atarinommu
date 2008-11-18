@@ -436,6 +436,32 @@ static inline void LPD7_SMC_outsw (unsigned char* a, int r,
 
 #include <asm/unit/smc91111.h>
 
+#elif defined(CONFIG_ATARI_ETHERNAT) || defined(CONFIG_ATARI_ETHERNAT_MODULE)
+
+#define SMC_CAN_USE_8BIT        1
+#define SMC_CAN_USE_16BIT       1
+#define SMC_CAN_USE_32BIT       1
+#define SMC_NOWAIT              1
+
+#define writew_be(val, addr) out_be16((addr), (val))
+
+#define SMC_inb(a, r)           readb((a) + (r))
+#define SMC_inw(a, r)           readw((a) + (r))
+#define SMC_inl(a, r)           readl((a) + (r))
+#define SMC_outb(v, a, r)       writeb(v, (a) + (r))
+#define SMC_outw(v, a, r)       writew(v, (a) + (r))
+#define SMC_outw_be(v, a, r)    writew_be(v, (a) + (r))
+#define SMC_outl(v, a, r)       writel(v, (a) + (r))
+#define SMC_insw(a, r, p, l)    readsw((a) + (r), p, l)
+#define SMC_outsw(a, r, p, l)   writesw((a) + (r), p, l)
+#define SMC_insl(a, r, p, l)    readsl((a) + (r), p, l)
+#define SMC_outsl(a, r, p, l)   writesl((a) + (r), p, l)
+
+#define RPC_LSA_DEFAULT         RPC_LED_100_10
+#define RPC_LSB_DEFAULT         RPC_LED_TX_RX
+
+#define SMC_DYNAMIC_BUS_CONFIG
+
 #else
 
 /*
@@ -1270,6 +1296,40 @@ static const char * chip_ids[ 16 ] =  {
 		}							\
 	} while (0)
 
+#if defined(CONFIG_ATARI_ETHERNAT) || defined(CONFIG_ATARI_ETHERNAT_MODULE)
+/*
+ * MSch: EtherNAT is 32 bit, so the misaligned data buffer hack applies.
+ * This appears to hurt quite a lot ... we actually need to byte swap the
+ * misaligned write because the data end up in the packet buffer swapped
+ * otherwise (resulting in the first two bytes of the target MAC address
+ * being swapped)
+ */
+#define SMC_PUSH_DATA(lp, p, l)					\
+	do {								\
+		if (SMC_32BIT(lp)) {				\
+			void *__ptr = (p);				\
+			int __len = (l);				\
+			void __iomem *__ioaddr = ioaddr;		\
+			if (__len >= 2 && (unsigned long)__ptr & 2) {	\
+				__len -= 2;				\
+				SMC_outw_be(*(u16 *)__ptr, ioaddr,	\
+					DATA_REG(lp));		\
+				__ptr += 2;				\
+			}						\
+			if (SMC_CAN_USE_DATACS && lp->datacs)		\
+				__ioaddr = lp->datacs;			\
+			SMC_outsl(__ioaddr, DATA_REG(lp), __ptr, __len>>2); \
+			if (__len & 2) {				\
+				__ptr += (__len & ~3);			\
+				SMC_outw_be(*((u16 *)__ptr), ioaddr,	\
+					 DATA_REG(lp));		\
+			}						\
+		} else if (SMC_16BIT(lp))				\
+			SMC_outsw(ioaddr, DATA_REG(lp), (u16 *) p, (l) >> 1); \
+		else if (SMC_8BIT(lp))				\
+			SMC_outsb(ioaddr, DATA_REG(lp), p, l);	\
+	} while (0)
+#else
 #define SMC_PUSH_DATA(lp, p, l)					\
 	do {								\
 		if (SMC_32BIT(lp)) {				\
@@ -1291,10 +1351,11 @@ static const char * chip_ids[ 16 ] =  {
 					 DATA_REG(lp));		\
 			}						\
 		} else if (SMC_16BIT(lp))				\
-			SMC_outsw(ioaddr, DATA_REG(lp), p, (l) >> 1);	\
+			SMC_outsw(ioaddr, DATA_REG(lp), (u16 *) p, (l) >> 1);	\
 		else if (SMC_8BIT(lp))				\
 			SMC_outsb(ioaddr, DATA_REG(lp), p, l);	\
 	} while (0)
+#endif
 
 #define SMC_PULL_DATA(lp, p, l)					\
 	do {								\
@@ -1326,7 +1387,7 @@ static const char * chip_ids[ 16 ] =  {
 			__len += 2;					\
 			SMC_insl(__ioaddr, DATA_REG(lp), __ptr, __len>>2); \
 		} else if (SMC_16BIT(lp))				\
-			SMC_insw(ioaddr, DATA_REG(lp), p, (l) >> 1);	\
+			SMC_insw(ioaddr, DATA_REG(lp), (u16 *) p, (l) >> 1);	\
 		else if (SMC_8BIT(lp))				\
 			SMC_insb(ioaddr, DATA_REG(lp), p, l);		\
 	} while (0)

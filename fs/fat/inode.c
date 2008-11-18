@@ -27,6 +27,7 @@
 #include <linux/writeback.h>
 #include <linux/log2.h>
 #include <linux/hash.h>
+#include <linux/major.h>
 #include <asm/unaligned.h>
 #include "fat.h"
 
@@ -836,7 +837,7 @@ enum {
 	Opt_check_n, Opt_check_r, Opt_check_s, Opt_uid, Opt_gid,
 	Opt_umask, Opt_dmask, Opt_fmask, Opt_allow_utime, Opt_codepage,
 	Opt_usefree, Opt_nocase, Opt_quiet, Opt_showexec, Opt_debug,
-	Opt_immutable, Opt_dots, Opt_nodots,
+	Opt_immutable, Opt_dots, Opt_nodots, Opt_atari_no, Opt_atari_yes,
 	Opt_charset, Opt_shortname_lower, Opt_shortname_win95,
 	Opt_shortname_winnt, Opt_shortname_mixed, Opt_utf8_no, Opt_utf8_yes,
 	Opt_uni_xl_no, Opt_uni_xl_yes, Opt_nonumtail_no, Opt_nonumtail_yes,
@@ -863,6 +864,9 @@ static const match_table_t fat_tokens = {
 	{Opt_showexec, "showexec"},
 	{Opt_debug, "debug"},
 	{Opt_immutable, "sys_immutable"},
+	{Opt_atari_yes, "atari=yes"},
+	{Opt_atari_yes, "atari"},
+	{Opt_atari_no, "atari=no"},
 	{Opt_obsolate, "conv=binary"},
 	{Opt_obsolate, "conv=text"},
 	{Opt_obsolate, "conv=auto"},
@@ -945,6 +949,13 @@ static int parse_options(char *options, int is_vfat, int silent, int *debug,
 	opts->numtail = 1;
 	opts->usefree = opts->nocase = 0;
 	opts->tz_utc = 0;
+	opts->atari = 0;
+
+#ifdef CONFIG_ATARI
+	if (MACH_IS_ATARI)
+	/* make Atari GEMDOS format the default if machine is an Atari */
+		opts->atari = 1;
+#endif
 	*debug = 0;
 
 	if (!options)
@@ -995,6 +1006,12 @@ static int parse_options(char *options, int is_vfat, int silent, int *debug,
 			break;
 		case Opt_immutable:
 			opts->sys_immutable = 1;
+			break;
+		case Opt_atari_yes:
+			opts->atari = 1;
+			break;
+		case Opt_atari_no:
+			opts->atari = 0;
 			break;
 		case Opt_uid:
 			if (match_int(&args[0], &option))
@@ -1352,8 +1369,31 @@ int fat_fill_super(struct super_block *sb, void *data, int silent,
 
 	total_clusters = (total_sectors - sbi->data_start) / sbi->sec_per_clus;
 
-	if (sbi->fat_bits != 32)
-		sbi->fat_bits = (total_clusters > MAX_FAT12) ? 16 : 12;
+	if (!sbi->options.atari) {
+		if (sbi->fat_bits != 32)
+			sbi->fat_bits = (total_clusters > MAX_FAT12) ? 16 : 12;
+	} else {
+		int sectors;
+		/* Atari GEMDOS partitions always have 16-bit fat */
+		if (sbi->fat_bits != 32)
+			sbi->fat_bits = 16;
+		/* If more clusters than fat entries in 16-bit fat, we assume
+		 * it's a real MSDOS partition with 12-bit fat.
+		 */
+		if (sbi->fat_bits != 32 && total_clusters+2 > sbi->
+			fat_length*SECTOR_SIZE*8/sbi->fat_bits)
+			sbi->fat_bits = 12;
+		/* if it's a floppy disk --> 12bit fat */
+		if (sbi->fat_bits != 32 && MAJOR(sb->s_dev) == FLOPPY_MAJOR)
+			sbi->fat_bits = 12;
+		/* if it's a ramdisk or loopback device and has one of the usual
+		 * floppy sizes -> 12bit FAT  */
+		sectors = total_sectors + sbi->data_start;
+		if (sbi->fat_bits != 32 && (MAJOR(sb->s_dev) == RAMDISK_MAJOR ||
+			 MAJOR(sb->s_dev) == LOOP_MAJOR) &&
+			(sectors == 720 || sectors == 1440 || sectors == 2880))
+			sbi->fat_bits = 12;
+	}
 
 	/* check that FAT table does not overflow */
 	fat_clusters = sbi->fat_length * sb->s_blocksize * 8 / sbi->fat_bits;

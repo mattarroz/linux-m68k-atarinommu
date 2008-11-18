@@ -31,6 +31,7 @@
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/ioport.h>
+#include <linux/platform_device.h>
 #include <linux/vt_kern.h>
 #include <linux/module.h>
 
@@ -656,3 +657,43 @@ static void atari_get_hardware_list(struct seq_file *m)
 	ATARIHW_ANNOUNCE(VME, "VME Bus");
 	ATARIHW_ANNOUNCE(DSP56K, "DSP56001 processor");
 }
+
+/*
+ * MSch: initial platform device support for Atari, required for EtherNAT
+ */
+
+#define ATARI_ETHERNAT_PHYS_ADDR	0x80000000
+#define ATARI_ETHERNAT_IRQ		0xc3
+
+static struct resource smc91x_resources[] = {
+	[0] = {
+		.name	= "smc91x-regs",
+		.start	= ATARI_ETHERNAT_PHYS_ADDR,
+		.end	= ATARI_ETHERNAT_PHYS_ADDR + 0xfffff,
+		.flags	= IORESOURCE_MEM,
+	},
+	[1] = {
+		.name	= "smc91x-irq",
+		.start	= ATARI_ETHERNAT_IRQ,
+		.end	= ATARI_ETHERNAT_IRQ,
+		.flags	= IORESOURCE_IRQ,
+	},
+};
+
+static struct platform_device smc91x_device = {
+	.name		= "smc91x",
+	.id		= -1,
+	.num_resources	= ARRAY_SIZE(smc91x_resources),
+	.resource	= smc91x_resources,
+};
+
+static struct platform_device *atari_platform_devices[] __initdata = {
+	&smc91x_device
+};
+
+int __init atari_platform_init(void)
+{
+	return platform_add_devices(atari_platform_devices, ARRAY_SIZE(atari_platform_devices));
+}
+
+arch_initcall(atari_platform_init);

@@ -380,8 +380,8 @@ static inline void isa_delay(void)
 /*
  * kernel with both ROM port ISA and IDE compiled in, those have
  * conflicting defs for in/out. Simply consider port < 1024
- * ROM port ISA and everything else regular ISA for IDE. read,write not defined
- * in this case
+ * ROM port ISA and everything else regular ISA for IDE. read,write defined
+ * below.
  */
 #define inb(port)	((port) < 1024 ? isa_rom_inb(port) : in_8(port))
 #define inb_p(port)	((port) < 1024 ? isa_rom_inb_p(port) : in_8(port))
@@ -397,17 +397,20 @@ static inline void isa_delay(void)
 #define outl(val, port)	((port) < 1024 ? isa_rom_outl((val), (port)) : out_le32((port), (val)))
 #define outl_p(val, port) ((port) < 1024 ? isa_rom_outl_p((val), (port)) : out_le32((port), (val)))
 
-#define insb    isa_rom_insb
-#define insw    isa_rom_insw
-#define insl    isa_rom_insl
-#define outsb   isa_rom_outsb
-#define outsw   isa_rom_outsw
-#define outsl   isa_rom_outsl
+#define insb(port, buf, nr)	((port) < 1024 ? isa_rom_insb((port), (buf), (nr)) : isa_insb((port), (buf), (nr)))
+#define insw(port, buf, nr)	((port) < 1024 ? isa_rom_insw((port), (buf), (nr)) : isa_insw((port), (buf), (nr)))
+#define insl(port, buf, nr)	((port) < 1024 ? isa_rom_insl((port), (buf), (nr)) : isa_insl((port), (buf), (nr)))
+#define outsb(port, buf, nr)	((port) < 1024 ? isa_rom_outsb((port), (buf), (nr)) : isa_outsb((port), (buf), (nr)))
+#define outsw(port, buf, nr)	((port) < 1024 ? isa_rom_outsw((port), (buf), (nr)) : isa_outsw((port), (buf), (nr)))
+#define outsl(port, buf, nr)	((port) < 1024 ? isa_rom_outsl((port), (buf), (nr)) : isa_outsl((port), (buf), (nr)))
 
-#define readb   isa_readb
-#define readw   isa_readw
-#define writeb  isa_writeb
-#define writew  isa_writew
+#define readb(addr)      in_8(addr)
+#define writeb(val,addr) out_8((addr),(val))
+#define readw(addr)      in_le16(addr)
+#define writew(val,addr) out_le16((addr),(val))
+
+#define readsw  raw_insw
+#define writesw raw_outsw
 #define readsl  raw_insl
 #define writesl raw_outsl
 #endif /* CONFIG_ATARI_ROM_ISA */

@@ -416,6 +416,14 @@ config ATARI_ETHERNAT
 	  CT/60 extension port. The driver works by polling instead of
 	  interrupts, so it is quite slow.
 
+config ATARI_ETHERNEC
+	tristate "Atari EtherNEC Ethernet support"
+	depends on NET_ETHERNET && ATARI && ATARI_ROM_ISA
+	help
+	  Say Y to include support for the EtherNEC network adapter for the
+	  ROM port. The driver works by polling instead of interrupts, so it
+	  is quite slow.
+
 config SUN3LANCE
 	tristate "Sun3/Sun3x on-board LANCE support"
 	depends on SUN3 || SUN3X

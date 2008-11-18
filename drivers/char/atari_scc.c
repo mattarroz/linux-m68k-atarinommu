@@ -1401,10 +1401,12 @@ static int scc_break_ctl(struct tty_struct *tty, int break_state)
 }
 
 
+#if defined(CONFIG_SERIAL_CONSOLE) && !defined(MODULE)
+
 /*---------------------------------------------------------------------------
  * Serial console stuff...
  *--------------------------------------------------------------------------*/
-#if 1
+
 #define scc_delay() \
 	asm volatile ("tstb %0" : : "m" (*scc_del) : "cc")
 
@@ -1571,7 +1573,8 @@ static int __init atari_scc_console_init(void)
 }
 
 console_initcall(atari_scc_console_init);
-#endif
+
+#endif /* CONFIG_SERIAL_CONSOLE && !MODULE */
 
 /***************************** End of Functions *********************/
 

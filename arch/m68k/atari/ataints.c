@@ -318,8 +318,6 @@ __ALIGN_STR "\n\t"
 
 extern void atari_microwire_cmd(int cmd);
 
-extern int atari_SCC_reset_done;
-
 static int atari_startup_irq(unsigned int irq)
 {
 	m68k_irq_startup(irq);

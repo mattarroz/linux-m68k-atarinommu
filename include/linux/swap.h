@@ -334,6 +334,8 @@ static inline void disable_swap_token(void)
 
 #else /* CONFIG_SWAP */
 
+//#include <linux/pagemap.h>
+
 #define total_swap_pages			0
 #define total_swapcache_pages			0UL
 

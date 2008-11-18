@@ -127,4 +127,6 @@ unsigned long get_wchan(struct task_struct *p);
 
 #define cpu_relax()	barrier()
 
+extern int handle_kernel_fault(struct pt_regs *regs);
+
 #endif

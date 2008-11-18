@@ -2097,7 +2097,6 @@ static int smc_request_attrib(struct platform_device *pdev,
 			      struct net_device *ndev)
 {
 	struct resource * res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "smc91x-attrib");
-	struct smc_local *lp = netdev_priv(ndev);
 
 	if (!res)
 		return 0;
@@ -2112,7 +2111,6 @@ static void smc_release_attrib(struct platform_device *pdev,
 			       struct net_device *ndev)
 {
 	struct resource * res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "smc91x-attrib");
-	struct smc_local *lp = netdev_priv(ndev);
 
 	if (res)
 		release_mem_region(res->start, ATTRIB_SIZE);
@@ -2302,7 +2300,7 @@ static int smc_drv_probe(struct platform_device *pdev)
 			timd = 80;
 		else if (timd > 255)
 			timd = 255;
-		printk(KERN_INFO "Timer D frequency: %d Hz\n", (38400UL/(unsigned int)timd));
+		printk(KERN_INFO "Timer D frequency: %u Hz\n", 38400/timd);
 		/* set Timer D data Register */
 		mfp.tim_dt_d = timd;	/* 200 Hz */
 		/* start timer D, div = 1:100 */

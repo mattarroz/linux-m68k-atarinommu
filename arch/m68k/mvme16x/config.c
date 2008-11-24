@@ -275,7 +275,7 @@ static struct console cons_info =
 	.index	= -1,
 };
 
-void __init mvme16x_early_console(void)
+static void __init mvme16x_early_console(void)
 {
 	register_console(&cons_info);
 

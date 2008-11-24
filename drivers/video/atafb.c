@@ -1697,10 +1697,8 @@ static int falcon_pan_display(struct fb_var_screeninfo *var,
 	}
 	par->hw.falcon.line_offset = bpp *
 		(info->var.xres_virtual - info->var.xres) / 16;
-#if 0
 	if (par->hw.falcon.xoffset)
 		par->hw.falcon.line_offset -= bpp;
-#endif;
 	xoffset = var->xoffset - par->hw.falcon.xoffset;
 
 	par->screen_base = screen_base +

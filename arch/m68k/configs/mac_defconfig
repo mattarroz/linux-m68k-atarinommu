@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Linux kernel version: 2.6.28-rc6
-# Mon Nov 24 21:54:55 2008
+# Linux kernel version: 2.6.28-rc7
+# Tue Dec  2 20:27:47 2008
 #
 CONFIG_M68K=y
 CONFIG_MMU=y

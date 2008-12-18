@@ -691,6 +691,7 @@ static int tt_decode_var(struct fb_var_screeninfo *var, struct atafb_par *par)
 		return -EINVAL;
 	par->yres_virtual = yres_virtual;
 	par->screen_base = screen_base + var->yoffset * linelen;
+	par->next_line = linelen;
 	return 0;
 }
 
@@ -914,8 +915,7 @@ static int falcon_encode_fix(struct fb_fix_screeninfo *fix,
 		fix->visual = FB_VISUAL_TRUECOLOR;
 		fix->xpanstep = 2;
 	}
-	fix->line_length =
-		(par->hw.falcon.line_width + par->hw.falcon.line_offset) * 2;
+	fix->line_length = par->next_line;
 	fix->accel = FB_ACCEL_ATARIBLITT;
 	return 0;
 }
@@ -1900,6 +1900,7 @@ static int stste_decode_var(struct fb_var_screeninfo *var,
 		return -EINVAL;
 	par->yres_virtual = yres_virtual;
 	par->screen_base = screen_base + var->yoffset * linelen;
+	par->next_line = linelen;
 	return 0;
 }
 
@@ -2174,6 +2175,8 @@ static int ext_decode_var(struct fb_var_screeninfo *var, struct atafb_par *par)
 	    var->xoffset > 0 ||
 	    var->yoffset > 0)
 		return -EINVAL;
+
+	par->next_line = external_xres_virtual * external_depth / 8;
 	return 0;
 }
 

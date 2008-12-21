@@ -90,6 +90,45 @@ static inline u32 get_mask(int n)
 
 
     /*
+     *  Transpose operations on 4 32-bit words
+     */
+
+#define transp4_nx1(d, n)					\
+	do {							\
+		u32 mask = get_mask(n);				\
+		/* First block */				\
+		_transp(d, 0, 1, n, mask);			\
+		/* Second block */				\
+		_transp(d, 2, 3, n, mask);			\
+	} while (0)
+
+#define transp4_nx2(d, n)					\
+	do {							\
+		u32 mask = get_mask(n);				\
+		/* Single block */				\
+		_transp(d, 0, 2, n, mask);			\
+		_transp(d, 1, 3, n, mask);			\
+	} while (0)
+
+#define transp4(d, n, m)	transp4_nx ## m(d, n)
+
+
+    /*
+     *  Transpose operations on 4 32-bit words (reverse order)
+     */
+
+#define transp4x_nx2(d, n)					\
+	do {							\
+		u32 mask = get_mask(n);				\
+		/* Single block */				\
+		_transp(d, 2, 0, n, mask);			\
+		_transp(d, 3, 1, n, mask);			\
+	} while (0)
+
+#define transp4x(d, n, m)	transp4x_nx ## m(d, n)
+
+
+    /*
      *  Compose two values, using a bitmask as decision value
      *  This is equivalent to (a & mask) | (b & ~mask)
      */

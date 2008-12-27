@@ -3,10 +3,6 @@
  *
  *  Copyright (C) 2003-2008 Geert Uytterhoeven
  *
- *  NOTES:
- *    - This code was inspired by Scout's C2P tutorial
- *    - It assumes to run on a big endian system
- *
  *  This file is subject to the terms and conditions of the GNU General Public
  *  License. See the file COPYING in the main directory of this archive
  *  for more details.
@@ -14,6 +10,8 @@
 
 #include <linux/module.h>
 #include <linux/string.h>
+
+#include <asm/unaligned.h>
 
 #include "c2p.h"
 #include "c2p_core.h"
@@ -52,7 +50,7 @@ static inline void store_planar(void *dst, u32 dst_inc, u32 bpp, u32 d[8])
 	int i;
 
 	for (i = 0; i < bpp; i++, dst += dst_inc)
-		*(u32 *)dst = d[perm_c2p_32x8[i]];
+		put_unaligned_be32(d[perm_c2p_32x8[i]], dst);
 }
 
 
@@ -66,7 +64,9 @@ static inline void store_planar_masked(void *dst, u32 dst_inc, u32 bpp,
 	int i;
 
 	for (i = 0; i < bpp; i++, dst += dst_inc)
-		*(u32 *)dst = comp(d[perm_c2p_32x8[i]], *(u32 *)dst, mask);
+		put_unaligned_be32(comp(d[perm_c2p_32x8[i]],
+					get_unaligned_be32(dst), mask),
+				   dst);
 }
 
 

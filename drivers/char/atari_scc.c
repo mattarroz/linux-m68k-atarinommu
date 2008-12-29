@@ -51,6 +51,7 @@
 
 #define CONFIG_TT_SCC     1
 #define CONFIG_FALCON_SCC 1
+#define CONFIG_ST_SCC     1
 
 #define CHANNEL_A	0
 #define CHANNEL_B	1
@@ -475,7 +476,7 @@ static int atari_st_scc_init(void)
 	request_irq(IRQ_SCCA_STAT, scc_stat_int, IRQ_TYPE_PRIO,
 		    "SCC-A status", port);
 	request_irq(IRQ_SCCA_RX, scc_rx_int, IRQ_TYPE_PRIO, "SCC-A RX", port);
-	request_irq(SCCA_SPCOND, scc_spcond_int, IRQ_TYPE_PRIO,
+	request_irq(IRQ_SCCA_SPCOND, scc_spcond_int, IRQ_TYPE_PRIO,
 		    "SCC-A special cond", port);
 	{
 		SCC_ACCESS_INIT(port);
@@ -493,7 +494,7 @@ static int atari_st_scc_init(void)
 		/* disable interrupts for this channel */
 		SCCwrite(INT_AND_DMA_REG, 0);
 		/* Set the interrupt vector */
-		SCCwrite(INT_VECTOR_REG, BVME_IRQ_SCC_BASE);
+		SCCwrite(INT_VECTOR_REG, 0x60);
 		/* Interrupt parameters: vector includes status, status low */
 		SCCwrite(MASTER_INT_CTRL, MIC_VEC_INCL_STAT);
 		SCCmod(MASTER_INT_CTRL, 0xff, MIC_MASTER_INT_ENAB);

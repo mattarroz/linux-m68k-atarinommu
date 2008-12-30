@@ -49,9 +49,9 @@
 
 #include "scc.h"
 
-#define CONFIG_TT_SCC     1
-#define CONFIG_FALCON_SCC 1
-#define CONFIG_ST_SCC     1
+#define SUPPORT_TT_SCC     1
+#define SUPPORT_FALCON_SCC 1
+#define SUPPORT_ST_SCC     1
 
 #define CHANNEL_A	0
 #define CHANNEL_B	1
@@ -364,7 +364,7 @@ static void atari_scc_b_free_irqs(struct scc_port *port)
 	free_irq(IRQ_SCCB_SPCOND, port);
 }
 
-#ifdef CONFIG_TT_SCC
+#ifdef SUPPORT_TT_SCC
 static int atari_tt_scc_init(void)
 {
 	struct scc_port *port;
@@ -464,10 +464,15 @@ static int atari_tt_scc_init(void)
 
 	return 0;
 }
-#endif
+#else /* !SUPPORT_TT_SCC */
+static inline int atari_tt_scc_init(void)
+{
+	return -ENODEV;
+}
+#endif /* !SUPPORT_TT_SCC */
 
 
-#ifdef CONFIG_FALCON_SCC
+#ifdef SUPPORT_FALCON_SCC
 static int atari_falcon_scc_init(void)
 {
 	struct scc_port *port;
@@ -541,10 +546,15 @@ static int atari_falcon_scc_init(void)
 
 	return 0;
 }
-#endif
+#else /* !SUPPORT_FALCON_SCC */
+static inline int atari_falcon_scc_init(void)
+{
+	return -ENODEV;
+}
+#endif /* !SUPPORT_FALCON_SCC */
 
 
-#ifdef CONFIG_ST_SCC
+#ifdef SUPPORT_ST_SCC
 static int atari_st_scc_init(void)
 {
 	struct scc_port *port;
@@ -618,7 +628,12 @@ static int atari_st_scc_init(void)
 
 	return 0;
 }
-#endif
+#else /* !SUPPORT_ST_SCC */
+static inline int atari_st_scc_init(void)
+{
+	return -ENODEV;
+}
+#endif /* !SUPPORT_ST_SCC */
 
 
 int atari_scc_init(void)
@@ -635,18 +650,12 @@ int atari_scc_init(void)
 
 	scc_del = &mfp.par_dt_reg;
 
-#ifdef CONFIG_TT_SCC
 	if (MACH_IS_TT)
 		res = atari_tt_scc_init();
-#endif
-#ifdef CONFIG_FALCON_SCC
 	if (MACH_IS_FALCON)
 		res = atari_falcon_scc_init();
-#endif
-#ifdef CONFIG_ST_SCC
 	if (MACH_IS_ST)
 		res = atari_st_scc_init();
-#endif
 	return res;
 }
 

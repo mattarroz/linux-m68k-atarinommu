@@ -87,18 +87,22 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *attr,
 
 static DEVICE_ATTR(modalias, S_IRUGO, modalias_show, NULL);
 
-void zorro_create_sysfs_dev_files(struct zorro_dev *z)
+int zorro_create_sysfs_dev_files(struct zorro_dev *z)
 {
 	struct device *dev = &z->dev;
+	int error;
 
 	/* current configuration's attributes */
-	device_create_file(dev, &dev_attr_id);
-	device_create_file(dev, &dev_attr_type);
-	device_create_file(dev, &dev_attr_serial);
-	device_create_file(dev, &dev_attr_slotaddr);
-	device_create_file(dev, &dev_attr_slotsize);
-	device_create_file(dev, &dev_attr_resource);
-	device_create_file(dev, &dev_attr_modalias);
-	sysfs_create_bin_file(&dev->kobj, &zorro_config_attr);
+	if ((error = device_create_file(dev, &dev_attr_id)) ||
+	    (error = device_create_file(dev, &dev_attr_type)) ||
+	    (error = device_create_file(dev, &dev_attr_serial)) ||
+	    (error = device_create_file(dev, &dev_attr_slotaddr)) ||
+	    (error = device_create_file(dev, &dev_attr_slotsize)) ||
+	    (error = device_create_file(dev, &dev_attr_resource)) ||
+	    (error = device_create_file(dev, &dev_attr_modalias)) ||
+	    (error = sysfs_create_bin_file(&dev->kobj, &zorro_config_attr)))
+		return error;
+
+	return 0;
 }
 

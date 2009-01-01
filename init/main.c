@@ -604,6 +604,8 @@ asmlinkage void __init start_kernel(void)
 	sort_main_extable();
 	trap_init();
 	rcu_init();
+	/* init some links before init_ISA_irqs() */
+	early_irq_init();
 	init_IRQ();
 	pidhash_init();
 	init_timers();

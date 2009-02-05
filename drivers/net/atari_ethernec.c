@@ -622,9 +622,9 @@ static int __init ne_probe1(struct net_device *dev, int ioaddr)
 		/* timer routine set up in atari_ethernec_probe() */
 		if (dev->irq == IRQ_MFP_TIMD) {
 			/* set Timer D data Register */
-			mfp.tim_dt_d = 123;	/* 200 Hz */
+			st_mfp.tim_dt_d = 123;	/* 200 Hz */
 			/* start timer D, div = 1:100 */
-			mfp.tim_ct_cd = (mfp.tim_ct_cd & 0xf0) | 0x6;
+			st_mfp.tim_ct_cd = (st_mfp.tim_ct_cd & 0xf0) | 0x6;
 		}
 		/* Must make this shared in case other timer ints are needed */
 		ret = request_irq(dev->irq, atari_ei_interrupt, IRQF_SHARED, name, dev);

@@ -2302,9 +2302,9 @@ static int __devinit smc_drv_probe(struct platform_device *pdev)
 			timd = 255;
 		printk(KERN_INFO "Timer D frequency: %u Hz\n", 38400/timd);
 		/* set Timer D data Register */
-		mfp.tim_dt_d = timd;	/* 200 Hz */
+		st_mfp.tim_dt_d = timd;	/* 200 Hz */
 		/* start timer D, div = 1:100 */
-		mfp.tim_ct_cd = (mfp.tim_ct_cd & 0xf0) | 0x5;
+		st_mfp.tim_ct_cd = (st_mfp.tim_ct_cd & 0xf0) | 0x5;
 	}
 
 	return 0;

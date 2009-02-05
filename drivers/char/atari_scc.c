@@ -653,7 +653,7 @@ int atari_scc_init(void)
 	if (!(ATARIHW_PRESENT(SCC) || ATARIHW_PRESENT(ST_ESCC)))
 		return -ENODEV;
 
-	scc_del = &mfp.par_dt_reg;
+	scc_del = &st_mfp.par_dt_reg;
 
 	if (MACH_IS_TT)
 		res = atari_tt_scc_init();
@@ -1541,7 +1541,7 @@ static void atari_init_scc_port(int cflag)
 	int baud = cflag & CBAUD;
 	int clksrc, clkmode, div, reg3, reg5;
 
-	scc_del = &mfp.par_dt_reg;
+	scc_del = &st_mfp.par_dt_reg;
 
 	if (cflag & CBAUDEX)
 		baud += B38400;

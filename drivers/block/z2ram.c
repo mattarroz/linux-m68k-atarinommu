@@ -75,8 +75,9 @@ static void do_z2_request(struct request_queue *q)
 		unsigned long len  = req->current_nr_sectors << 9;
 
 		if (start + len > z2ram_size) {
-			printk( KERN_ERR DEVICE_NAME ": bad access: block=%lu, count=%u\n",
-				req->sector, req->current_nr_sectors);
+			pr_err(DEVICE_NAME ": bad access: block=%llu, "
+			       "count=%u\n", (unsigned long long)req->sector,
+			       req->current_nr_sectors);
 			end_request(req, 0);
 			continue;
 		}

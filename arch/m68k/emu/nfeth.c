@@ -12,7 +12,6 @@
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/module.h>
-#include <net/ieee80211.h>
 #include <asm/natfeat.h>
 #include <asm/virtconvert.h>
 

@@ -369,7 +369,7 @@ static inline void LPD7_SMC_outsw (unsigned char* a, int r,
  * MN10300/AM33 configuration
  */
 
-#include <asm/unit/smc91111.h>
+#include <unit/smc91111.h>
 
 #elif defined(CONFIG_ATARI_ETHERNAT) || defined(CONFIG_ATARI_ETHERNAT_MODULE)
 

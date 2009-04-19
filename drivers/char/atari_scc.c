@@ -1351,7 +1351,7 @@ static int scc_open(struct tty_struct *tty, struct file *filp)
 	pr_debug(KERN_WARNING "SCC: enable rx ints ...\n");
 	scc_enable_rx_interrupts(port);
 	pr_debug(KERN_WARNING "SCC: enable rx ints done!\n");
-	pr_info("SCC: open port done!\n");
+	pr_debug("SCC: open port done!\n");
 	return 0;
 }
 

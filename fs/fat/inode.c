@@ -1387,7 +1387,7 @@ int fat_fill_super(struct super_block *sb, void *data, int silent,
 		 * it's a real MSDOS partition with 12-bit fat.
 		 */
 		if (sbi->fat_bits != 32 && total_clusters+2 > sbi->
-			fat_length*SECTOR_SIZE*8/sbi->fat_bits)
+			fat_length*sb->s_blocksize*8/sbi->fat_bits)
 			sbi->fat_bits = 12;
 		/* if it's a floppy disk --> 12bit fat */
 		if (sbi->fat_bits != 32 && MAJOR(sb->s_dev) == FLOPPY_MAJOR)

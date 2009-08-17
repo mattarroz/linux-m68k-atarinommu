@@ -196,6 +196,17 @@ static struct net_device_stats *nfeth_get_stats(struct net_device *dev)
 	return &priv->stats;
 }
 
+static const struct net_device_ops nfeth_netdev_ops = {
+	.ndo_open		= nfeth_open,
+	.ndo_stop		= nfeth_stop,
+	.ndo_start_xmit		= nfeth_xmit,
+	.ndo_tx_timeout		= nfeth_tx_timeout,
+	.ndo_get_stats		= nfeth_get_stats,
+	.ndo_validate_addr	= eth_validate_addr,
+	.ndo_change_mtu		= eth_change_mtu,
+	.ndo_set_mac_address	= eth_mac_addr,
+};
+
 struct net_device * __init nfeth_probe(int unit)
 {
 	struct net_device *dev;
@@ -212,11 +223,8 @@ struct net_device * __init nfeth_probe(int unit)
 		return NULL;
 
 	dev->irq = nfEtherIRQ;
-	dev->open = nfeth_open;
-	dev->stop = nfeth_stop;
-	dev->hard_start_xmit = nfeth_xmit;
-	dev->tx_timeout = nfeth_tx_timeout;
-	dev->get_stats = nfeth_get_stats;
+	dev->netdev_ops = &nfeth_netdev_ops;
+
 	dev->flags |= NETIF_F_NO_CSUM;
 	memcpy(dev->dev_addr, mac, ETH_ALEN);
 

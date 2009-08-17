@@ -122,7 +122,7 @@ static int __init nfhd_init_one(int id, u32 blocks, u32 bsize)
 
 	dev->queue->queuedata = dev;
 	blk_queue_make_request(dev->queue, nfhd_make_request);
-	blk_queue_hardsect_size(dev->queue, bsize);
+	blk_queue_logical_block_size(dev->queue, bsize);
 
 	dev->disk = alloc_disk(16);
 	if (!dev->disk)

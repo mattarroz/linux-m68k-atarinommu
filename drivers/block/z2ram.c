@@ -70,16 +70,19 @@ static struct gendisk *z2ram_gendisk;
 static void do_z2_request(struct request_queue *q)
 {
 	struct request *req;
-	while ((req = elv_next_request(q)) != NULL) {
-		unsigned long start = req->sector << 9;
-		unsigned long len  = req->current_nr_sectors << 9;
+
+	req = blk_fetch_request(q);
+	while (req) {
+		unsigned long start = blk_rq_pos(req) << 9;
+		unsigned long len  = blk_rq_cur_bytes(req);
+		int err = 0;
 
 		if (start + len > z2ram_size) {
-			pr_err(DEVICE_NAME ": bad access: block=%llu, "
-			       "count=%u\n", (unsigned long long)req->sector,
-			       req->current_nr_sectors);
-			end_request(req, 0);
-			continue;
+			pr_err(DEVICE_NAME ": bad access: block=%llu, count=%u\n",
+				(unsigned long long)blk_rq_pos(req),
+				blk_rq_cur_sectors(req));
+			err = -EIO;
+			goto done;
 		}
 		while (len) {
 			unsigned long addr = start & Z2RAM_CHUNKMASK;
@@ -94,7 +97,9 @@ static void do_z2_request(struct request_queue *q)
 			start += size;
 			len -= size;
 		}
-		end_request(req, 1);
+	done:
+		if (!__blk_end_request_cur(req, err))
+			req = blk_fetch_request(q);
 	}
 }
 
@@ -370,7 +375,7 @@ err:
 static void __exit z2_exit(void)
 {
     int i, j;
-    blk_unregister_region(MKDEV(Z2RAM_MAJOR, 0), 256);
+    blk_unregister_region(MKDEV(Z2RAM_MAJOR, 0), Z2MINOR_COUNT);
     unregister_blkdev(Z2RAM_MAJOR, DEVICE_NAME);
     del_gendisk(z2ram_gendisk);
     put_disk(z2ram_gendisk);

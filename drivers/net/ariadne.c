@@ -115,7 +115,8 @@ struct lancedata {
 
 static int ariadne_open(struct net_device *dev);
 static void ariadne_init_ring(struct net_device *dev);
-static int ariadne_start_xmit(struct sk_buff *skb, struct net_device *dev);
+static netdev_tx_t ariadne_start_xmit(struct sk_buff *skb,
+				      struct net_device *dev);
 static void ariadne_tx_timeout(struct net_device *dev);
 static int ariadne_rx(struct net_device *dev);
 static void ariadne_reset(struct net_device *dev);
@@ -590,7 +591,8 @@ static void ariadne_tx_timeout(struct net_device *dev)
 }
 
 
-static int ariadne_start_xmit(struct sk_buff *skb, struct net_device *dev)
+static netdev_tx_t ariadne_start_xmit(struct sk_buff *skb,
+				      struct net_device *dev)
 {
     struct ariadne_private *priv = netdev_priv(dev);
     volatile struct Am79C960 *lance = (struct Am79C960*)dev->base_addr;
@@ -611,7 +613,7 @@ static int ariadne_start_xmit(struct sk_buff *skb, struct net_device *dev)
     if (skb->len < ETH_ZLEN)
     {
     	if (skb_padto(skb, ETH_ZLEN))
-    	    return 0;
+    	    return NETDEV_TX_OK;
     	len = ETH_ZLEN;
     }
 
@@ -686,7 +688,7 @@ static int ariadne_start_xmit(struct sk_buff *skb, struct net_device *dev)
     }
     local_irq_restore(flags);
 
-    return 0;
+    return NETDEV_TX_OK;
 }
 
 

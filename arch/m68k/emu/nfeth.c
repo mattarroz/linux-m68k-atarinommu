@@ -212,7 +212,6 @@ struct net_device * __init nfeth_probe(int unit)
 	struct net_device *dev;
 	struct nfeth_private *priv;
 	char mac[ETH_ALEN], host_ip[32], local_ip[32];
-	DECLARE_MAC_BUF(macfmt);
 	int err;
 
 	if (!nf_call(nfEtherID + XIF_GET_MAC, unit, mac, ETH_ALEN))
@@ -242,8 +241,8 @@ struct net_device * __init nfeth_probe(int unit)
 	nf_call(nfEtherID + XIF_GET_IPATARI, unit,
 		local_ip, sizeof(local_ip));
 
-	pr_info("%s: nfeth addr:%s (%s) HWaddr:%s\n", dev->name, host_ip,
-		local_ip, print_mac(macfmt, mac));
+	pr_info("%s: nfeth addr:%s (%s) HWaddr:%pM\n", dev->name, host_ip,
+		local_ip, mac);
 
 	return dev;
 }

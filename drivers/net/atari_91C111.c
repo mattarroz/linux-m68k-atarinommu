@@ -35,7 +35,7 @@
  *
  * contributors:
  * 	Daris A Nevil <dnevil@snmc.com>
- *      Nicolas Pitre <nico@cam.org>
+ *      Nicolas Pitre <nico@fluxnic.net>
  *	Russell King <rmk@arm.linux.org.uk>
  *
  * History:

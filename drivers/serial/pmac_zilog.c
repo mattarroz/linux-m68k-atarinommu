@@ -72,7 +72,6 @@
 #include <asm/macio.h>
 #else
 #include <linux/platform_device.h>
-#include <asm/macints.h>
 #define machine_is_compatible(x) (0)
 #endif
 
@@ -1902,7 +1901,7 @@ static void pmz_dispose_port(struct uart_pmac_port *uap)
 	memset(uap, 0, sizeof(struct uart_pmac_port));
 }
 
-static int pmz_attach(struct platform_device *pdev)
+static int __init pmz_attach(struct platform_device *pdev)
 {
 	int i;
 
@@ -1912,7 +1911,7 @@ static int pmz_attach(struct platform_device *pdev)
 	return -ENODEV;
 }
 
-static int pmz_detach(struct platform_device *pdev)
+static int __exit pmz_detach(struct platform_device *pdev)
 {
 	return 0;
 }
@@ -2005,11 +2004,10 @@ static struct macio_driver pmz_driver = {
 #else
 
 static struct platform_driver pmz_driver = {
-	.probe          = pmz_attach,
-	.remove         = __devexit_p(pmz_detach),
-	.driver         = {
-		.name           = "scc",
-		.owner          = THIS_MODULE,
+	.remove		= __exit_p(pmz_detach),
+	.driver		= {
+		.name		= "scc",
+		.owner		= THIS_MODULE,
 	},
 };
 
@@ -2056,7 +2054,7 @@ static int __init init_pmz(void)
 #ifdef CONFIG_PPC_PMAC
 	return macio_register_driver(&pmz_driver);
 #else
-	return platform_driver_register(&pmz_driver);
+	return platform_driver_probe(&pmz_driver, pmz_attach);
 #endif
 }
 

@@ -6,9 +6,9 @@
 #define pmz_error(fmt, arg...)	dev_err(&uap->dev->ofdev.dev, fmt, ## arg)
 #define pmz_info(fmt, arg...)	dev_info(&uap->dev->ofdev.dev, fmt, ## arg)
 #else
-#define pmz_debug(fmt, arg...)	do { } while (0)
-#define pmz_error(fmt, arg...)	printk(KERN_ERR fmt, ## arg)
-#define pmz_info(fmt, arg...)	printk(KERN_INFO fmt, ## arg)
+#define pmz_debug(fmt, arg...)	dev_dbg(&uap->node->dev, fmt, ## arg)
+#define pmz_error(fmt, arg...)	dev_err(&uap->node->dev, fmt, ## arg)
+#define pmz_info(fmt, arg...)	dev_info(&uap->node->dev, fmt, ## arg)
 #endif
 
 /*

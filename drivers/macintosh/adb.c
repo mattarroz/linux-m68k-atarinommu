@@ -324,8 +324,8 @@ static int __init adb_init(void)
 		printk(KERN_WARNING "Warning: no ADB interface detected\n");
 	} else {
 #ifdef CONFIG_PPC
-		if (machine_is_compatible("AAPL,PowerBook1998") ||
-			machine_is_compatible("PowerBook1,1"))
+		if (of_machine_is_compatible("AAPL,PowerBook1998") ||
+			of_machine_is_compatible("PowerBook1,1"))
 			sleepy_trackpad = 1;
 #endif /* CONFIG_PPC */
 

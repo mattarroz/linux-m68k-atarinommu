@@ -16,6 +16,7 @@
 #include <linux/genhd.h>
 #include <linux/blkdev.h>
 #include <linux/hdreg.h>
+#include <linux/slab.h>
 
 #include <asm/natfeat.h>
 

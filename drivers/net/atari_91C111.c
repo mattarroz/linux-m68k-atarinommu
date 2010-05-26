@@ -2253,7 +2253,7 @@ static int __devinit smc_drv_probe(struct platform_device *pdev)
 	printk("atari_91C111: IRQ forced to irq=%d\n", ndev->irq);
 	}
 
-	if (ires->flags & IRQF_TRIGGER_MASK)
+	if (irq_flags == -1 || ires->flags & IRQF_TRIGGER_MASK)
 		irq_flags = ires->flags & IRQF_TRIGGER_MASK;
 
 

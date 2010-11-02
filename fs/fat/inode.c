@@ -14,7 +14,6 @@
 #include <linux/init.h>
 #include <linux/time.h>
 #include <linux/slab.h>
-#include <linux/smp_lock.h>
 #include <linux/seq_file.h>
 #include <linux/pagemap.h>
 #include <linux/mpage.h>
@@ -490,8 +489,6 @@ static void fat_put_super(struct super_block *sb)
 {
 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
 
-	lock_kernel();
-
 	if (sb->s_dirt)
 		fat_write_super(sb);
 
@@ -505,8 +502,6 @@ static void fat_put_super(struct super_block *sb)
 
 	sb->s_fs_info = NULL;
 	kfree(sbi);
-
-	unlock_kernel();
 }
 
 static struct kmem_cache *fat_inode_cachep;

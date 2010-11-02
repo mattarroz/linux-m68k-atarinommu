@@ -88,8 +88,8 @@
 #undef MULTI_ISA
 #endif
 
-#define ISA_TYPE_Q40 (1)
-#define ISA_TYPE_AG  (2)
+#define ISA_TYPE_Q40  (1)
+#define ISA_TYPE_AG   (2)
 #define ISA_TYPE_ENEC (3)
 
 #if defined(CONFIG_Q40) && !defined(MULTI_ISA)

@@ -514,7 +514,7 @@ config ATARI_MFPSER
 
 config ATARI_SCC
 	tristate "Atari SCC serial support"
-	depends on ATARI
+	depends on ATARI && BROKEN
 	---help---
 	  If you have serial ports based on a Zilog SCC chip (Modem2, Serial2,
 	  LAN) and like to use them under Linux, say Y. All built-in SCC's are

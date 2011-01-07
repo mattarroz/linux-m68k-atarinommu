@@ -102,7 +102,6 @@ static void amiga_reset(void);
 extern void amiga_init_sound(void);
 static void amiga_mem_console_write(struct console *co, const char *b,
 				    unsigned int count);
-static void __init amiga_savekmsg_init(void);
 #ifdef CONFIG_HEARTBEAT
 static void amiga_heartbeat(int on);
 #endif
@@ -112,8 +111,6 @@ static struct console amiga_console_driver = {
 	.flags	= CON_PRINTBUFFER,
 	.index	= -1,
 };
-
-static int __initdata amiga_enable_debug_mem;
 
 
     /*
@@ -445,9 +442,6 @@ void __init config_amiga(void)
 	/* initialize chipram allocator */
 	amiga_chip_init();
 
-	if (amiga_enable_debug_mem && AMIGAHW_PRESENT(CHIP_RAM))
-		amiga_savekmsg_init();
-
 	/* our beloved beeper */
 	if (AMIGAHW_PRESENT(AMI_AUDIO))
 		amiga_init_sound();
@@ -614,9 +608,17 @@ static void amiga_mem_console_write(struct console *co, const char *s,
 	}
 }
 
-static void __init amiga_savekmsg_init(void)
+static int __init amiga_savekmsg_setup(char *arg)
 {
 	static struct resource debug_res = { .name = "Debug" };
+
+	if (!MACH_IS_AMIGA || strcmp(arg, "mem"))
+		goto done;
+
+	if (!AMIGAHW_PRESENT(CHIP_RAM)) {
+		printk("Warning: no chipram present for debugging\n");
+		goto done;
+	}
 
 	savekmsg = amiga_chip_alloc_res(SAVEKMSG_MAXMEM, &debug_res);
 	savekmsg->magic1 = SAVEKMSG_MAGIC1;
@@ -626,20 +628,6 @@ static void __init amiga_savekmsg_init(void)
 
 	amiga_console_driver.write = amiga_mem_console_write;
 	register_console(&amiga_console_driver);
-}
-
-static int __init amiga_savekmsg_setup(char *arg)
-{
-	if (!MACH_IS_AMIGA || strcmp(arg, "mem"))
-		goto done;
-
-	if (!AMIGAHW_PRESENT(CHIP_RAM)) {
-		printk("Warning: no chipram present for debugging\n");
-		amiga_enable_debug_mem = 1;
-		goto done;
-	}
-
-	amiga_savekmsg_init();
 
 done:
 	return 0;

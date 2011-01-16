@@ -383,7 +383,7 @@ static int atari_tt_scc_init(void)
 	pr_debug("SCC: init channel A\n");
 	port = &scc_ports[0];
 	port->channel = CHANNEL_A;
-	port->ctrlp = (volatile unsigned char *)&scc.cha_a_ctrl;
+	port->ctrlp = (volatile unsigned char *)&atari_scc.cha_a_ctrl;
 	port->datap = port->ctrlp + 1;
 	port->port_a = &scc_ports[0];
 	port->port_b = &scc_ports[1];
@@ -422,7 +422,7 @@ static int atari_tt_scc_init(void)
 		pr_debug("SCC: init channel B\n");
 		port = &scc_ports[1];
 		port->channel = CHANNEL_B;
-		port->ctrlp = (volatile unsigned char *)&scc.cha_b_ctrl;
+		port->ctrlp = (volatile unsigned char *)&atari_scc.cha_b_ctrl;
 		port->datap = port->ctrlp + 1;
 		port->port_a = &scc_ports[0];
 		port->port_b = &scc_ports[1];
@@ -490,7 +490,7 @@ static int atari_falcon_scc_init(void)
 	/* Init channel A */
 	port = &scc_ports[0];
 	port->channel = CHANNEL_A;
-	port->ctrlp = (volatile unsigned char *)&scc.cha_a_ctrl;
+	port->ctrlp = (volatile unsigned char *)&atari_scc.cha_a_ctrl;
 	port->datap = port->ctrlp + 2;
 	port->port_a = &scc_ports[0];
 	port->port_b = &scc_ports[1];
@@ -524,7 +524,7 @@ static int atari_falcon_scc_init(void)
 	/* Init channel B */
 	port = &scc_ports[1];
 	port->channel = CHANNEL_B;
-	port->ctrlp = (volatile unsigned char *)&scc.cha_b_ctrl;
+	port->ctrlp = (volatile unsigned char *)&atari_scc.cha_b_ctrl;
 	port->datap = port->ctrlp + 2;
 	port->port_a = &scc_ports[0];
 	port->port_b = &scc_ports[1];
@@ -572,7 +572,7 @@ static int atari_st_scc_init(void)
 	port = &scc_ports[1];
 	port->channel = CHANNEL_A;
 	port->ctrlp = (volatile unsigned char *)(escc ? &st_escc.cha_a_ctrl
-						      : &scc.cha_a_ctrl);
+						      : &atari_scc.cha_a_ctrl);
 	port->datap = port->ctrlp + 4;
 	port->port_a = &scc_ports[1];
 	port->port_b = &scc_ports[0];
@@ -606,7 +606,7 @@ static int atari_st_scc_init(void)
 	port = &scc_ports[0];
 	port->channel = CHANNEL_B;
 	port->ctrlp = (volatile unsigned char *)(escc ? &st_escc.cha_b_ctrl
-						      : &scc.cha_b_ctrl);
+						      : &atari_scc.cha_b_ctrl);
 	port->datap = port->ctrlp + 4;
 	port->port_a = &scc_ports[0];
 	port->port_b = &scc_ports[1];
@@ -1506,9 +1506,9 @@ static int scc_break_ctl(struct tty_struct *tty, int break_state)
 
 #define SCC_WRITE(reg,val)				\
 	do {						\
-		scc.cha_b_ctrl = (reg);			\
+		atari_scc.cha_b_ctrl = (reg);		\
 		scc_delay();				\
-		scc.cha_b_ctrl = (val);			\
+		atari_scc.cha_b_ctrl = (val);		\
 		scc_delay();				\
 	} while (0)
 
@@ -1569,7 +1569,7 @@ static void atari_init_scc_port(int cflag)
 	reg3 = (cflag & CSIZE) == CS8 ? 0xc0 : 0x40;
 	reg5 = (cflag & CSIZE) == CS8 ? 0x60 : 0x20 | 0x82 /* assert DTR/RTS */;
 
-	(void)scc.cha_b_ctrl;		/* reset reg pointer */
+	(void)atari_scc.cha_b_ctrl;	/* reset reg pointer */
 	SCC_WRITE(9, 0xc0);		/* reset */
 	LONG_DELAY();			/* extra delay after WR9 access */
 	SCC_WRITE(4, (cflag & PARENB) ? ((cflag & PARODD) ? 0x01 : 0x03) : 0 |
@@ -1597,10 +1597,10 @@ static void scc_ch_write(char ch)
 	volatile char *p = NULL;
 
 	if (MACH_IS_TT || MACH_IS_FALCON)
-		p = (volatile char *)&scc.cha_b_ctrl;
+		p = (volatile char *)&atari_scc.cha_b_ctrl;
 
 	if (MACH_IS_ST)
-		p = (volatile char *)&scc.cha_b_ctrl;
+		p = (volatile char *)&atari_scc.cha_b_ctrl;
 
 	if (MACH_IS_STE)
 		p = (volatile char *)&st_escc.cha_b_ctrl;

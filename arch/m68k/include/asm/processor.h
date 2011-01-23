@@ -113,6 +113,8 @@ static inline void start_thread(struct pt_regs * regs, unsigned long pc,
 	wrusp(usp);
 }
 
+extern int handle_kernel_fault(struct pt_regs *regs);
+
 #else
 
 /*
@@ -175,9 +177,5 @@ unsigned long get_wchan(struct task_struct *p);
 #define task_pt_regs(tsk)	((struct pt_regs *) ((tsk)->thread.esp0))
 
 #define cpu_relax()	barrier()
-
-#ifdef CONFIG_MMU
-extern int handle_kernel_fault(struct pt_regs *regs);
-#endif
 
 #endif

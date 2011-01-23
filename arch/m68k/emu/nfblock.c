@@ -79,7 +79,7 @@ static int nfhd_make_request(struct request_queue *queue, struct bio *bio)
 	return 0;
 }
 
-int nfhd_getgeo(struct block_device *bdev, struct hd_geometry *geo)
+static int nfhd_getgeo(struct block_device *bdev, struct hd_geometry *geo)
 {
 	struct nfhd_device *dev = bdev->bd_disk->private_data;
 
@@ -90,7 +90,7 @@ int nfhd_getgeo(struct block_device *bdev, struct hd_geometry *geo)
 	return 0;
 }
 
-static struct block_device_operations nfhd_ops = {
+static const struct block_device_operations nfhd_ops = {
 	.owner	= THIS_MODULE,
 	.getgeo	= nfhd_getgeo,
 };
@@ -100,11 +100,11 @@ static int __init nfhd_init_one(int id, u32 blocks, u32 bsize)
 	struct nfhd_device *dev;
 	int dev_id = id - NFHD_DEV_OFFSET;
 
-	printk(KERN_INFO "nfhd%u: found device with %u blocks (%u bytes)\n",
-		dev_id, blocks, bsize);
+	pr_info("nfhd%u: found device with %u blocks (%u bytes)\n", dev_id,
+		blocks, bsize);
 
 	if (bsize < 512 || (bsize & (bsize - 1))) {
-		printk(KERN_WARNING "nfhd%u: invalid block size\n", dev_id);
+		pr_warn("nfhd%u: invalid block size\n", dev_id);
 		return -EINVAL;
 	}
 
@@ -162,8 +162,8 @@ static int __init nfhd_init(void)
 
 	major_num = register_blkdev(major_num, "nfhd");
 	if (major_num <= 0) {
-		printk(KERN_WARNING "nfhd: unable to get major number\n");
-		return -ENODEV;
+		pr_warn("nfhd: unable to get major number\n");
+		return major_num;
 	}
 
 	for (i = NFHD_DEV_OFFSET; i < 24; i++) {

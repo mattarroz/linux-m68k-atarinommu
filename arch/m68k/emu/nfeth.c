@@ -9,6 +9,11 @@
  * the GNU General Public License (GPL), incorporated herein by reference.
  */
 
+#define DRV_VERSION	"0.3"
+#define DRV_RELDATE	"10/12/2005"
+
+#define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
+
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/module.h>
@@ -30,17 +35,13 @@ enum {
 	XIF_GET_NETMASK	/* (ethX, buffer, size), return IP netmask */
 };
 
-#define DRV_NAME	"nfeth"
-#define DRV_VERSION	"0.3"
-#define DRV_RELDATE	"10/12/2005"
-
 #define MAX_UNIT	8
 
 /* These identify the driver base version and may not be removed. */
 static const char version[] __devinitdata =
-	KERN_INFO DRV_NAME ".c:v" DRV_VERSION " " DRV_RELDATE
+	KERN_INFO KBUILD_MODNAME ".c:v" DRV_VERSION " " DRV_RELDATE
 	" S.Opichal, M.Jurik, P.Stehlik\n"
-	KERN_INFO " http://aranym.atari.org/\n";
+	KERN_INFO " http://aranym.org/\n";
 
 MODULE_AUTHOR("Milan Jurik");
 MODULE_DESCRIPTION("Atari NFeth driver");
@@ -66,8 +67,7 @@ static int nfeth_open(struct net_device *dev)
 	int res;
 
 	res = nf_call(nfEtherID + XIF_START, priv->ethX);
-
-	pr_debug(DRV_NAME ": open %d\n", res);
+	netdev_dbg(dev, "%s: %d\n", __func__, res);
 
 	/* Ready for data */
 	netif_start_queue(dev);
@@ -99,18 +99,18 @@ static inline void recv_packet(struct net_device *dev)
 	/* read packet length (excluding 32 bit crc) */
 	pktlen = nf_call(nfEtherID + XIF_READLENGTH, priv->ethX);
 
-	pr_debug(DRV_NAME ": recv_packet: %i\n", pktlen);
+	netdev_dbg(dev, "%s: %u\n", __func__, pktlen);
 
 	if (!pktlen) {
-		pr_debug(DRV_NAME ": recv_packet: pktlen == 0\n");
+		netdev_dbg(dev, "%s: pktlen == 0\n", __func__);
 		dev->stats.rx_errors++;
 		return;
 	}
 
 	skb = dev_alloc_skb(pktlen + 2);
 	if (!skb) {
-		pr_debug(DRV_NAME
-			 ": recv_packet: out of mem (buf_alloc failed)\n");
+		netdev_dbg(dev, "%s: out of mem (buf_alloc failed)\n",
+			   __func__);
 		dev->stats.rx_dropped++;
 		return;
 	}
@@ -147,7 +147,7 @@ static irqreturn_t nfeth_interrupt(int irq, void *dev_id)
 
 static int nfeth_xmit(struct sk_buff *skb, struct net_device *dev)
 {
-	int len;
+	unsigned int len;
 	char *data, shortpkt[ETH_ZLEN];
 	struct nfeth_private *priv = netdev_priv(dev);
 
@@ -160,9 +160,7 @@ static int nfeth_xmit(struct sk_buff *skb, struct net_device *dev)
 		len = ETH_ZLEN;
 	}
 
-	dev->trans_start = jiffies;
-
-	pr_debug(DRV_NAME ": send %d bytes\n", len);
+	netdev_dbg(dev, "%s: send %u bytes\n", __func__, len);
 	nf_call(nfEtherID + XIF_WRITEBLOCK, priv->ethX, virt_to_phys(data),
 		len);
 
@@ -223,8 +221,8 @@ static struct net_device * __init nfeth_probe(int unit)
 	nf_call(nfEtherID + XIF_GET_IPATARI, unit,
 		local_ip, sizeof(local_ip));
 
-	pr_info("%s: nfeth addr:%s (%s) HWaddr:%pM\n", dev->name, host_ip,
-		local_ip, mac);
+	netdev_info(dev, KBUILD_MODNAME " addr:%s (%s) HWaddr:%pM\n", host_ip,
+		    local_ip, mac);
 
 	return dev;
 }
@@ -239,13 +237,13 @@ static int __init nfeth_init(void)
 		return -ENODEV;
 
 	ver = nf_call(nfEtherID + GET_VERSION);
-	pr_info("nfeth API %lu\n", ver);
+	pr_info("API %lu\n", ver);
 
 	nfEtherIRQ = nf_call(nfEtherID + XIF_INTLEVEL);
 	error = request_irq(nfEtherIRQ, nfeth_interrupt, IRQF_SHARED,
 			    "eth emu", nfeth_interrupt);
 	if (error) {
-		pr_err("nfeth: request for irq %d failed", nfEtherIRQ);
+		pr_err("request for irq %d failed %d", nfEtherIRQ, error);
 		return error;
 	}
 
@@ -270,5 +268,3 @@ static void __exit nfeth_cleanup(void)
 
 module_init(nfeth_init);
 module_exit(nfeth_cleanup);
-
-MODULE_LICENSE("GPL");

@@ -174,7 +174,10 @@ extern struct module __this_module;
 #define MODULE_VERSION(_version)					\
 	extern ssize_t __modver_version_show(struct module_attribute *,	\
 					     struct module *, char *);	\
-	static struct module_version_attribute ___modver_attr = {	\
+	static struct module_version_attribute __modver_version_attr	\
+	__used								\
+    __attribute__ ((__section__ ("__modver"),aligned(sizeof(void *)))) \
+	= {								\
 		.mattr	= {						\
 			.attr	= {					\
 				.name	= "version",			\
@@ -184,10 +187,7 @@ extern struct module __this_module;
 		},							\
 		.module_name	= KBUILD_MODNAME,			\
 		.version	= _version,				\
-	};								\
-	static const struct module_version_attribute			\
-	__used __attribute__ ((__section__ ("__modver")))		\
-	* __moduleparam_const __modver_attr = &___modver_attr
+	}
 #endif
 
 /* Optional firmware file (or files) needed by the module

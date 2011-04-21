@@ -27,11 +27,6 @@
 
 #ifdef CONFIG_MMU
 
-#include <linux/linkage.h>
-#include <linux/hardirq.h>
-#include <linux/irqreturn.h>
-#include <linux/spinlock_types.h>
-
 /*
  * Interrupt source definitions
  * General interrupt sources are the level 1-7.
@@ -54,7 +49,12 @@
 
 #define IRQ_USER	8
 
-extern unsigned int irq_canonicalize(unsigned int irq);
+#ifndef CONFIG_GENERIC_HARDIRQS
+
+#include <linux/linkage.h>
+#include <linux/hardirq.h>
+#include <linux/irqreturn.h>
+#include <linux/spinlock_types.h>
 
 struct pt_regs;
 
@@ -108,10 +108,33 @@ extern void m68k_setup_irq_chip(struct irq_chip *, unsigned int, unsigned int);
 extern void generic_handle_irq(unsigned int);
 asmlinkage void do_IRQ(int irq, struct pt_regs *regs);
 
+#else /* CONFIG_GENERIC_HARDIRQS */
+
+struct irq_data;
+struct irq_chip;
+struct irq_desc;
+extern unsigned int m68k_irq_startup(struct irq_data *data);
+extern unsigned int m68k_irq_startup_irq(unsigned int irq);
+extern void m68k_irq_shutdown(struct irq_data *data);
+extern void m68k_setup_auto_interrupt(void (*handler)(unsigned int,
+						      struct pt_regs *));
+extern void m68k_setup_user_interrupt(unsigned int vec, unsigned int cnt,
+				      void (*handler)(unsigned int,
+						      struct pt_regs *));
+extern void m68k_setup_irq_controller(struct irq_chip *,
+				      void (*handle)(unsigned int irq,
+						     struct irq_desc *desc),
+				      unsigned int irq, unsigned int cnt);
+
+#endif /* CONFIG_GENERIC_HARDIRQS */
+
+extern unsigned int irq_canonicalize(unsigned int irq);
+
 #else
 #define irq_canonicalize(irq)  (irq)
 #endif /* CONFIG_MMU */
 
 asmlinkage void do_IRQ(int irq, struct pt_regs *regs);
+extern atomic_t irq_err_count;
 
 #endif /* _M68K_IRQ_H_ */

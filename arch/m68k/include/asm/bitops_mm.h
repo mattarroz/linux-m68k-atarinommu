@@ -27,7 +27,8 @@
 
 #define __test_and_set_bit(nr,vaddr) test_and_set_bit(nr,vaddr)
 
-static inline int __constant_test_and_set_bit(int nr, unsigned long *vaddr)
+static inline int __constant_test_and_set_bit(int nr,
+					      volatile unsigned long *vaddr)
 {
 	char *p = (char *)vaddr + (nr ^ 31) / 8;
 	char retval;
@@ -39,7 +40,8 @@ static inline int __constant_test_and_set_bit(int nr, unsigned long *vaddr)
 	return retval;
 }
 
-static inline int __generic_test_and_set_bit(int nr, unsigned long *vaddr)
+static inline int __generic_test_and_set_bit(int nr,
+					     volatile unsigned long *vaddr)
 {
 	char retval;
 
@@ -76,7 +78,8 @@ static inline void __generic_set_bit(int nr, volatile unsigned long *vaddr)
 
 #define __test_and_clear_bit(nr,vaddr) test_and_clear_bit(nr,vaddr)
 
-static inline int __constant_test_and_clear_bit(int nr, unsigned long *vaddr)
+static inline int __constant_test_and_clear_bit(int nr,
+						volatile unsigned long *vaddr)
 {
 	char *p = (char *)vaddr + (nr ^ 31) / 8;
 	char retval;
@@ -88,7 +91,8 @@ static inline int __constant_test_and_clear_bit(int nr, unsigned long *vaddr)
 	return retval;
 }
 
-static inline int __generic_test_and_clear_bit(int nr, unsigned long *vaddr)
+static inline int __generic_test_and_clear_bit(int nr,
+					       volatile unsigned long *vaddr)
 {
 	char retval;
 
@@ -131,7 +135,8 @@ static inline void __generic_clear_bit(int nr, volatile unsigned long *vaddr)
 #define __test_and_change_bit(nr,vaddr) test_and_change_bit(nr,vaddr)
 #define __change_bit(nr,vaddr) change_bit(nr,vaddr)
 
-static inline int __constant_test_and_change_bit(int nr, unsigned long *vaddr)
+static inline int __constant_test_and_change_bit(int nr,
+						 volatile unsigned long *vaddr)
 {
 	char *p = (char *)vaddr + (nr ^ 31) / 8;
 	char retval;
@@ -143,7 +148,8 @@ static inline int __constant_test_and_change_bit(int nr, unsigned long *vaddr)
 	return retval;
 }
 
-static inline int __generic_test_and_change_bit(int nr, unsigned long *vaddr)
+static inline int __generic_test_and_change_bit(int nr,
+						volatile unsigned long *vaddr)
 {
 	char retval;
 
@@ -158,14 +164,14 @@ static inline int __generic_test_and_change_bit(int nr, unsigned long *vaddr)
    __constant_change_bit(nr, vaddr) : \
    __generic_change_bit(nr, vaddr))
 
-static inline void __constant_change_bit(int nr, unsigned long *vaddr)
+static inline void __constant_change_bit(int nr, volatile unsigned long *vaddr)
 {
 	char *p = (char *)vaddr + (nr ^ 31) / 8;
 	__asm__ __volatile__ ("bchg %1,%0"
 			: "+m" (*p) : "di" (nr & 7));
 }
 
-static inline void __generic_change_bit(int nr, unsigned long *vaddr)
+static inline void __generic_change_bit(int nr, volatile unsigned long *vaddr)
 {
 	__asm__ __volatile__ ("bfchg %1{%0:#1}"
 			: : "d" (nr^31), "o" (*vaddr) : "memory");

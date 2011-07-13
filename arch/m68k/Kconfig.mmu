@@ -200,7 +200,6 @@ config SUN3
 
 config USE_GENERIC_HARDIRQS
 	bool "Use genirq"
-	depends on !MAC
 	depends on !APOLLO
 	depends on !MVME147
 	depends on !MVME16x

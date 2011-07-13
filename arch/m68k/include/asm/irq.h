@@ -59,19 +59,6 @@ extern unsigned int irq_canonicalize(unsigned int irq);
 struct pt_regs;
 
 /*
- * various flags for request_irq() - the Amiga now uses the standard
- * mechanism like all other architectures - IRQF_DISABLED and
- * IRQF_SHARED are your friends.
- */
-#ifndef MACH_AMIGA_ONLY
-#define IRQ_FLG_LOCK	(0x0001)	/* handler is not replaceable	*/
-#define IRQ_FLG_REPLACE	(0x0002)	/* replace existing handler	*/
-#define IRQ_FLG_FAST	(0x0004)
-#define IRQ_FLG_SLOW	(0x0008)
-#define IRQ_FLG_STD	(0x8000)	/* internally used		*/
-#endif
-
-/*
  * This structure is used to chain together the ISRs for a particular
  * interrupt source (if it supports chaining).
  */

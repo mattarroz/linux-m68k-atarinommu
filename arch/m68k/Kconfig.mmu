@@ -200,7 +200,6 @@ config SUN3
 
 config USE_GENERIC_HARDIRQS
 	bool "Use genirq"
-	depends on !APOLLO
 	depends on !SUN3X
 	depends on !Q40
 	depends on !SUN3

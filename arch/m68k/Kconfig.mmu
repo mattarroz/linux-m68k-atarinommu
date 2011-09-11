@@ -198,11 +198,6 @@ config SUN3
 
 	  If you don't want to compile a kernel exclusively for a Sun 3, say N.
 
-config USE_GENERIC_HARDIRQS
-	bool "Use genirq"
-	select HAVE_GENERIC_HARDIRQS
-	select GENERIC_IRQ_SHOW
-
 config NATFEAT
 	bool "ARAnyM emulator support"
 	depends on ATARI

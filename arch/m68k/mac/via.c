@@ -40,7 +40,6 @@
 volatile __u8 *via1, *via2;
 int rbv_present;
 int via_alt_mapping;
-EXPORT_SYMBOL(via_alt_mapping);
 static __u8 rbv_clear;
 
 /*

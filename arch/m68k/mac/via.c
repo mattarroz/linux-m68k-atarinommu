@@ -125,7 +125,7 @@ void __init via_init(void)
 
 		/* IIci, IIsi, IIvx, IIvi (P6xx), LC series */
 
-		case MAC_VIA_IIci:
+		case MAC_VIA_IICI:
 			via1 = (void *) VIA1_BASE;
 			if (macintosh_config->ident == MAC_MODEL_IIFX) {
 				via2 = NULL;
@@ -398,7 +398,7 @@ void __init via_nubus_init(void)
 	case MAC_VIA_QUADRA:
 		pr_debug("VIA2 vDirA is 0x%02X\n", via2[vDirA]);
 		break;
-	case MAC_VIA_IIci:
+	case MAC_VIA_IICI:
 		/* RBV. Disable all the slot interrupts. SIER works like IER. */
 		via2[rSIER] = 0x7F;
 		break;
@@ -421,7 +421,7 @@ void via_nubus_irq_startup(int irq)
 			via2[vDirA] &= 0x80 | ~(1 << irq_idx);
 		}
 		/* fall through */
-	case MAC_VIA_IIci:
+	case MAC_VIA_IICI:
 		via_irq_enable(irq);
 		break;
 	}
@@ -435,7 +435,7 @@ void via_nubus_irq_shutdown(int irq)
 		/* Ensure that the umbrella CA1 interrupt remains enabled. */
 		via_irq_enable(irq);
 		break;
-	case MAC_VIA_IIci:
+	case MAC_VIA_IICI:
 		via_irq_disable(irq);
 		break;
 	}
@@ -568,7 +568,7 @@ void via_irq_enable(int irq) {
 			if (!nubus_disabled)
 				via2[gIER] = IER_SET_BIT(1);
 			break;
-		case MAC_VIA_IIci:
+		case MAC_VIA_IICI:
 			/* On RBV, enable the slot interrupt.
 			 * SIER works like IER.
 			 */
@@ -598,7 +598,7 @@ void via_irq_disable(int irq) {
 			if (nubus_disabled)
 				via2[gIER] = IER_CLR_BIT(1);
 			break;
-		case MAC_VIA_IIci:
+		case MAC_VIA_IICI:
 			via2[rSIER] = IER_CLR_BIT(irq_idx);
 			break;
 		}

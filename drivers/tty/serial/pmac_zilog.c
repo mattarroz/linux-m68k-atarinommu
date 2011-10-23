@@ -910,8 +910,8 @@ static int __pmz_startup(struct uart_pmac_port *uap)
 	/* Clear handshaking, enable BREAK interrupts */
 	uap->curregs[R15] = BRKIE;
 
-	/* Master interrupt enable */
-	uap->curregs[R9] |= NV | MIE;
+	/* No vector */
+	uap->curregs[R9] |= NV;
 
 	pmz_load_zsregs(uap, uap->curregs);
 
@@ -923,6 +923,17 @@ static int __pmz_startup(struct uart_pmac_port *uap)
 	uap->prev_status = read_zsreg(uap, R0);
 
 	return pwr_delay;
+}
+
+static void pmz_master_int_control(struct uart_pmac_port *uap, int enable)
+{
+	if (enable) {
+		uap->curregs[R9] |= MIE; /* Master interrupt enable */
+		write_zsreg(uap, R9, uap->curregs[R9]);
+	} else {
+		uap->curregs[R9] &= ~MIE;
+		write_zsreg(uap, 9, FHWRES);
+	}
 }
 
 static void pmz_irda_reset(struct uart_pmac_port *uap)
@@ -976,6 +987,19 @@ static int pmz_startup(struct uart_port *port)
 		return -ENXIO;
 	}
 
+	/*
+	 * Most 68k Mac models cannot mask the SCC IRQ so they must enable
+	 * interrupts after the handler is installed and not before.
+	 */
+#ifndef CONFIG_MAC
+	if (!ZS_IS_CONS(uap))
+#endif
+	{
+		spin_lock_irqsave(&port->lock, flags);
+		pmz_master_int_control(uap, 1);
+		spin_unlock_irqrestore(&port->lock, flags);
+	}
+
 	mutex_unlock(&pmz_irq_mutex);
 
 	/* Right now, we deal with delay by blocking here, I'll be
@@ -1014,6 +1038,11 @@ static void pmz_shutdown(struct uart_port *port)
 		return;
 
 	mutex_lock(&pmz_irq_mutex);
+
+#ifdef CONFIG_MAC
+	if (!ZS_IS_OPEN(uap->mate))
+		pmz_master_int_control(uap, 0);
+#endif
 
 	/* Release interrupt handler */
 	free_irq(uap->port.irq, uap);
@@ -1734,6 +1763,7 @@ static int pmz_resume(struct macio_dev *mdev)
 		goto bail;
 	}
 	pwr_delay = __pmz_startup(uap);
+	pmz_master_int_control(uap, 1);
 
 	/* Take care of config that may have changed while asleep */
 	__pmz_set_termios(&uap->port, &uap->termios_cache, NULL);
@@ -2178,6 +2208,9 @@ static int __init pmz_console_setup(struct console *co, char *options)
 	 * Enable the hardware
 	 */
 	pwr_delay = __pmz_startup(uap);
+#ifndef CONFIG_MAC
+	pmz_master_int_control(uap, 1);
+#endif
 	if (pwr_delay)
 		mdelay(pwr_delay);
 	

@@ -30,7 +30,6 @@ extern u_long atari_switches;
 extern int atari_rtc_year_offset;
 extern int atari_dont_touch_floppy_select;
 
-extern int atari_SCC_init_done;
 extern int atari_SCC_reset_done;
 
 /* convenience macros for testing machine type */

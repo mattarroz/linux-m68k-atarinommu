@@ -25,10 +25,6 @@
  * serial debug driver. We may want to hold off reinitializing ...
  */
 
-/* Flag that Modem1 port is already initialized and used */
-int atari_SCC_init_done;
-EXPORT_SYMBOL(atari_SCC_init_done);
-
 /* Can be set somewhere, if a SCC master reset has already be done and should
  * not be repeated; used by kgdb */
 int atari_SCC_reset_done;
@@ -267,7 +263,6 @@ static void __init atari_init_scc_port(int cflag)
 	SCC_WRITE(5, reg5 | 8);
 
 	atari_SCC_reset_done = 1;
-	atari_SCC_init_done = 1;
 }
 
 static void __init atari_init_midi_port(int cflag)

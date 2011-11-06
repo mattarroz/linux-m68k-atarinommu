@@ -386,8 +386,6 @@ static inline void mem_cgroup_uncharge_swap(swp_entry_t ent)
 
 #else /* CONFIG_SWAP */
 
-//#include <linux/pagemap.h>
-
 #define nr_swap_pages				0L
 #define total_swap_pages			0L
 #define total_swapcache_pages			0UL

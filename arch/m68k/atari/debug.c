@@ -20,11 +20,6 @@
 #include <asm/atarihw.h>
 #include <asm/atariints.h>
 
-/*
- * Flags to indicate one of the serial ports has already been initialized by the
- * serial debug driver. We may want to hold off reinitializing ...
- */
-
 /* Can be set somewhere, if a SCC master reset has already be done and should
  * not be repeated; used by kgdb */
 int atari_SCC_reset_done;

@@ -60,6 +60,7 @@
 #include <asm/dma.h>
 #include <asm/macintosh.h>
 #include <asm/macints.h>
+#include <asm/mac_via.h>
 
 static char mac_sonic_string[] = "macsonic";
 
@@ -126,49 +127,61 @@ static inline void bit_reverse_addr(unsigned char addr[6])
 		addr[i] = bitrev8(addr[i]);
 }
 
+static irqreturn_t macsonic_interrupt(int irq, void *dev_id)
+{
+	irqreturn_t result;
+	unsigned long flags;
+
+	local_irq_save(flags);
+	result = sonic_interrupt(irq, dev_id);
+	local_irq_restore(flags);
+	return result;
+}
+
 static int macsonic_open(struct net_device* dev)
 {
-	struct sonic_local *lp = netdev_priv(dev);
-	int err;
+	int retval;
 
-	err = request_irq(dev->irq, sonic_interrupt, 0, "SONIC", dev);
-	if (err) {
-		pr_err("%s: unable to get IRQ %d\n", dev->name, dev->irq);
-		goto out;
+	retval = request_irq(dev->irq, sonic_interrupt, 0, "sonic", dev);
+	if (retval) {
+		printk(KERN_ERR "%s: unable to get IRQ %d.\n",
+				dev->name, dev->irq);
+		goto err;
 	}
-	if (lp->irq1) {
-		err = request_irq(lp->irq1, sonic_interrupt, 0, "SONIC", dev);
-		if (err) {
-			pr_err("%s: unable to get IRQ %d\n",
-			       dev->name, lp->irq1);
-			goto out_irq;
+	/* Under the A/UX interrupt scheme, the onboard SONIC interrupt comes
+	 * in at priority level 3. However, we sometimes get the level 2 inter-
+	 * rupt as well, which must prevent re-entrance of the sonic handler.
+	 */
+	if (dev->irq == IRQ_AUTO_3) {
+		retval = request_irq(IRQ_NUBUS_9, macsonic_interrupt, 0,
+				     "sonic", dev);
+		if (retval) {
+			printk(KERN_ERR "%s: unable to get IRQ %d.\n",
+					dev->name, IRQ_NUBUS_9);
+			goto err_irq;
 		}
 	}
-	err = sonic_open(dev);
-	if (err)
-		goto out_irq1;
-
+	retval = sonic_open(dev);
+	if (retval)
+		goto err_irq_nubus;
 	return 0;
 
-out_irq1:
-	if (lp->irq1)
-		free_irq(lp->irq1, dev);
-out_irq:
+err_irq_nubus:
+	if (dev->irq == IRQ_AUTO_3)
+		free_irq(IRQ_NUBUS_9, dev);
+err_irq:
 	free_irq(dev->irq, dev);
-out:
-	return err;
+err:
+	return retval;
 }
 
 static int macsonic_close(struct net_device* dev)
 {
-	struct sonic_local *lp = netdev_priv(dev);
 	int err;
-
 	err = sonic_close(dev);
-
-	if (lp->irq1)
-		free_irq(lp->irq1, dev);
 	free_irq(dev->irq, dev);
+	if (dev->irq == IRQ_AUTO_3)
+		free_irq(IRQ_NUBUS_9, dev);
 	return err;
 }
 
@@ -297,9 +310,8 @@ static void __devinit mac_onboard_sonic_ethernet_addr(struct net_device *dev)
 	random_ether_addr(dev->dev_addr);
 }
 
-static int __devinit mac_onboard_sonic_probe(struct platform_device *pdev)
+static int __devinit mac_onboard_sonic_probe(struct net_device *dev)
 {
-	struct net_device *dev = platform_get_drvdata(pdev);
 	struct sonic_local* lp = netdev_priv(dev);
 	int sr;
 	int commslot = 0;
@@ -336,12 +348,10 @@ static int __devinit mac_onboard_sonic_probe(struct platform_device *pdev)
 	/* Danger!  My arms are flailing wildly!  You *must* set lp->reg_offset
 	 * and dev->base_addr before using SONIC_READ() or SONIC_WRITE() */
 	dev->base_addr = ONBOARD_SONIC_REGISTERS;
-
-	dev->irq = platform_get_irq(pdev, 0);
-	lp->irq1 = platform_get_irq(pdev, 1);
-
-	if (!dev->irq)
-		return -ENODEV;
+	if (via_alt_mapping)
+		dev->irq = IRQ_AUTO_3;
+	else
+		dev->irq = IRQ_NUBUS_9;
 
 	if (!sonic_version_printed) {
 		printk(KERN_INFO "%s", version);
@@ -580,7 +590,7 @@ static int __devinit mac_sonic_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dev);
 
 	/* This will catch fatal stuff like -ENOMEM as well as success */
-	err = mac_onboard_sonic_probe(pdev);
+	err = mac_onboard_sonic_probe(dev);
 	if (err == 0)
 		goto found;
 	if (err != -ENODEV)

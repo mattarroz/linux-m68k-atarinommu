@@ -967,16 +967,9 @@ static struct platform_device esp_1_pdev = {
 	.id		= 1,
 };
 
-static struct resource sonic_rsrcs[] = {
-	{ .flags = IORESOURCE_IRQ },
-	{ .flags = IORESOURCE_IRQ },
-};
-
 static struct platform_device sonic_pdev = {
 	.name		= "macsonic",
 	.id		= -1,
-	.num_resources  = ARRAY_SIZE(sonic_rsrcs),
-	.resource       = sonic_rsrcs,
 };
 
 static struct platform_device mace_pdev = {
@@ -1040,10 +1033,6 @@ int __init mac_platform_init(void)
 
 	switch (macintosh_config->ether_type) {
 	case MAC_ETHER_SONIC:
-		sonic_rsrcs[0].start = sonic_rsrcs[0].end = IRQ_NUBUS_9;
-		if (via_alt_mapping)
-			sonic_rsrcs[1].start = sonic_rsrcs[1].end = IRQ_AUTO_3;
-
 		platform_device_register(&sonic_pdev);
 		break;
 	case MAC_ETHER_MACE:

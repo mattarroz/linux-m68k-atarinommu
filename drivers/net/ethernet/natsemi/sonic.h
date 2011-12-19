@@ -318,9 +318,6 @@ struct sonic_local {
 	unsigned int eol_rx;
 	unsigned int eol_tx;           /* last unacked transmit packet */
 	unsigned int next_tx;          /* next free TD */
-#ifdef CONFIG_MAC
-	int irq1;                      /* Second IRQ for Mac Quadras */
-#endif
 	struct device *device;         /* generic device */
 	struct net_device_stats stats;
 };

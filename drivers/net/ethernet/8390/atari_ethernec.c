@@ -645,12 +645,12 @@ static int __init ne_probe1(struct net_device *dev, int ioaddr)
 #ifdef CONFIG_PLAT_MAPPI
 	outb_p(E8390_NODMA + E8390_PAGE1 + E8390_STOP,
 		ioaddr + E8390_CMD); /* 0x61 */
-	for (i = 0; i < ETHER_ADDR_LEN; i++) {
+	for (i = 0; i < ETH_ALEN; i++) {
 		dev->dev_addr[i] = SA_prom[i] = inb_p(ioaddr + EN1_PHYS_SHIFT(i));
 		printk(" %2.2x", SA_prom[i]);
 	}
 #else
-	for (i = 0; i < ETHER_ADDR_LEN; i++) {
+	for (i = 0; i < ETH_ALEN; i++) {
 		printk(" %2.2x", SA_prom[i]);
 		dev->dev_addr[i] = SA_prom[i];
 	}

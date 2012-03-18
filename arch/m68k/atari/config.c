@@ -693,6 +693,9 @@ static struct platform_device *atari_platform_devices[] __initdata = {
 
 int __init atari_platform_init(void)
 {
+	if (!MACH_IS_ATARI)
+		return -ENODEV;
+
 	return platform_add_devices(atari_platform_devices, ARRAY_SIZE(atari_platform_devices));
 }
 

@@ -98,7 +98,6 @@ static const char version2[] =
 #include <linux/jiffies.h>
 #include <linux/workqueue.h>
 
-#include <asm/system.h>
 #include <asm/atarihw.h>
 #include <asm/atariints.h>
 #include <asm/io.h>

@@ -371,11 +371,6 @@ static inline void isa_delay(void)
 #define writeb(val,addr) out_8((addr),(val))
 #define readw(addr)      in_le16(addr)
 #define writew(val,addr) out_le16((addr),(val))
-
-#define readsw  raw_insw
-#define writesw raw_outsw
-#define readsl  raw_insl
-#define writesl raw_outsl
 #endif /* CONFIG_ATARI_ROM_ISA */
 
 #if !defined(CONFIG_ISA) && !defined(CONFIG_ATARI_ROM_ISA)
@@ -414,6 +409,13 @@ static inline void isa_delay(void)
 
 #define readl(addr)      in_le32(addr)
 #define writel(val,addr) out_le32((addr),(val))
+
+#define readsb(port, buf, nr)     raw_insb((port), (u8 *)(buf), (nr))
+#define readsw(port, buf, nr)     raw_insw((port), (u16 *)(buf), (nr))
+#define readsl(port, buf, nr)     raw_insl((port), (u32 *)(buf), (nr))
+#define writesb(port, buf, nr)    raw_outsb((port), (u8 *)(buf), (nr))
+#define writesw(port, buf, nr)    raw_outsw((port), (u16 *)(buf), (nr))
+#define writesl(port, buf, nr)    raw_outsl((port), (u32 *)(buf), (nr))
 
 #define mmiowb()
 

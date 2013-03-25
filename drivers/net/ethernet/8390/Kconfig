@@ -135,14 +135,6 @@ config APNE
 	  To compile this driver as a module, choose M here: the module
 	  will be called apne.
 
-config ATARI_ETHERNEC
-	tristate "Atari EtherNEC Ethernet support"
-	depends on ATARI_ROM_ISA
-	help
-	  Say Y to include support for the EtherNEC network adapter for the
-	  ROM port. The driver works by polling instead of interrupts, so it
-	  is quite slow.
-
 config PCMCIA_PCNET
 	tristate "NE2000 compatible PCMCIA support"
 	depends on PCMCIA

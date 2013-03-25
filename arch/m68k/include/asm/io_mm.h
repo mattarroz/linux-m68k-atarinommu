@@ -68,10 +68,10 @@
 #define enec_isa_read_base  0xfffa0000
 #define enec_isa_write_base 0xfffb0000
 
-#define ENEC_ISA_IO_B(ioaddr)	(enec_isa_read_base+((((unsigned long)(ioaddr))&0x1F)<<9))
-#define ENEC_ISA_IO_W(ioaddr)	(enec_isa_read_base+((((unsigned long)(ioaddr))&0x1F)<<9))
-#define ENEC_ISA_MEM_B(madr)	(enec_isa_read_base+((((unsigned long)(madr))&0x1F)<<9))
-#define ENEC_ISA_MEM_W(madr)	(enec_isa_read_base+((((unsigned long)(madr))&0x1F)<<9))
+#define ENEC_ISA_IO_B(ioaddr)	(enec_isa_read_base+((((unsigned long)(ioaddr))&0x7F)<<9))
+#define ENEC_ISA_IO_W(ioaddr)	(enec_isa_read_base+((((unsigned long)(ioaddr))&0x7F)<<9))
+#define ENEC_ISA_MEM_B(madr)	(enec_isa_read_base+((((unsigned long)(madr))&0x7F)<<9))
+#define ENEC_ISA_MEM_W(madr)	(enec_isa_read_base+((((unsigned long)(madr))&0x7F)<<9))
 
 #ifndef MULTI_ISA
 #define MULTI_ISA 0
@@ -261,27 +261,29 @@ static inline u16 __iomem *isa_mtw(unsigned long addr)
 #define isa_rom_inw(port)	\
 	(ISA_SEX ? rom_in_be16(isa_itw(port))	\
 		 : rom_in_le16(isa_itw(port)))
-#define isa_rom_inl(port)	\
-	(ISA_SEX ? rom_in_be32(isa_itw(port))	\
-		 : rom_in_le32(isa_itw(port)))
 
 #define isa_rom_outb(val, port) rom_out_8(isa_itb(port), (val))
 #define isa_rom_outw(val, port)	\
 	(ISA_SEX ? rom_out_be16(isa_itw(port), (val))	\
 		 : rom_out_le16(isa_itw(port), (val)))
-#define isa_rom_outl(val, port)	\
-	(ISA_SEX ? rom_out_be32(isa_itw(port), (val))	\
-		 : rom_out_le32(isa_itw(port), (val)))
 
 #define isa_rom_readb(p)       rom_in_8(isa_mtb((unsigned long)(p)))
 #define isa_rom_readw(p)       \
 	(ISA_SEX ? rom_in_be16(isa_mtw((unsigned long)(p)))	\
 		 : rom_in_le16(isa_mtw((unsigned long)(p))))
+#define isa_rom_readw_swap(p)       \
+	(ISA_SEX ? rom_in_le16(isa_mtw((unsigned long)(p)))	\
+		 : rom_in_be16(isa_mtw((unsigned long)(p))))
+#define isa_rom_readw_raw(p)   rom_in_be16(isa_mtw((unsigned long)(p)))
 
 #define isa_rom_writeb(val, p)  rom_out_8(isa_mtb((unsigned long)(p)), (val))
 #define isa_rom_writew(val, p)  \
 	(ISA_SEX ? rom_out_be16(isa_mtw((unsigned long)(p)), (val))	\
 		 : rom_out_le16(isa_mtw((unsigned long)(p)), (val)))
+#define isa_rom_writew_swap(val, p)  \
+	(ISA_SEX ? rom_out_le16(isa_mtw((unsigned long)(p)), (val))	\
+		 : rom_out_be16(isa_mtw((unsigned long)(p)), (val)))
+#define isa_rom_writew_raw(val, p)  rom_out_be16(isa_mtw((unsigned long)(p)), (val))
 #endif /* CONFIG_ATARI_ROM_ISA */
 
 static inline void isa_delay(void)
@@ -331,10 +333,8 @@ static inline void isa_delay(void)
 #ifdef CONFIG_ATARI_ROM_ISA
 #define isa_rom_inb_p(p)	({ u8 _v = isa_rom_inb(p); isa_delay(); _v; })
 #define isa_rom_inw_p(p)	({ u16 _v = isa_rom_inw(p); isa_delay(); _v; })
-#define isa_rom_inl_p(p)	({ u32 _v = isa_rom_inl(p); isa_delay(); _v; })
 #define isa_rom_outb_p(v, p)	({ isa_rom_outb((v), (p)); isa_delay(); })
 #define isa_rom_outw_p(v, p)	({ isa_rom_outw((v), (p)); isa_delay(); })
-#define isa_rom_outl_p(v, p)	({ isa_rom_outl((v), (p)); isa_delay(); })
 
 #define isa_rom_insb(port, buf, nr) raw_rom_insb(isa_itb(port), (u8 *)(buf), (nr))
 
@@ -342,19 +342,11 @@ static inline void isa_delay(void)
        (ISA_SEX ? raw_rom_insw(isa_itw(port), (u16 *)(buf), (nr)) :    \
 		  raw_rom_insw_swapw(isa_itw(port), (u16 *)(buf), (nr)))
 
-#define isa_rom_insl(port, buf, nr)     \
-       (ISA_SEX ? raw_rom_insl(isa_itw(port), (u32 *)(buf), (nr)) :    \
-                  raw_rom_insw_swapw(isa_itw(port), (u16 *)(buf), (nr)<<1))
-
 #define isa_rom_outsb(port, buf, nr) raw_rom_outsb(isa_itb(port), (u8 *)(buf), (nr))
 
 #define isa_rom_outsw(port, buf, nr)    \
        (ISA_SEX ? raw_rom_outsw(isa_itw(port), (u16 *)(buf), (nr)) :  \
 		  raw_rom_outsw_swapw(isa_itw(port), (u16 *)(buf), (nr)))
-
-#define isa_rom_outsl(port, buf, nr)    \
-       (ISA_SEX ? raw_rom_outsl(isa_itw(port), (u32 *)(buf), (nr)) :  \
-                  raw_rom_outsw_swapw(isa_itw(port), (u16 *)(buf), (nr)<<1))
 #endif /* CONFIG_ATARI_ROM_ISA */
 
 #endif  /* CONFIG_ISA || CONFIG_ATARI_ROM_ISA */
@@ -396,22 +388,22 @@ static inline void isa_delay(void)
 #define inb_p(port)	((port) < 1024 ? isa_rom_inb_p(port) : in_8(port))
 #define inw(port)	((port) < 1024 ? isa_rom_inw(port) : in_le16(port))
 #define inw_p(port)	((port) < 1024 ? isa_rom_inw_p(port) : in_le16(port))
-#define inl(port)	((port) < 1024 ? isa_rom_inl(port) : in_le32(port))
-#define inl_p(port)	((port) < 1024 ? isa_rom_inl_p(port) : in_le32(port))
+#define inl		isa_inl
+#define inl_p		isa_inl_p
 
 #define outb(val, port)	((port) < 1024 ? isa_rom_outb((val), (port)) : out_8((port), (val)))
 #define outb_p(val, port) ((port) < 1024 ? isa_rom_outb_p((val), (port)) : out_8((port), (val)))
 #define outw(val, port)	((port) < 1024 ? isa_rom_outw((val), (port)) : out_le16((port), (val)))
 #define outw_p(val, port) ((port) < 1024 ? isa_rom_outw_p((val), (port)) : out_le16((port), (val)))
-#define outl(val, port)	((port) < 1024 ? isa_rom_outl((val), (port)) : out_le32((port), (val)))
-#define outl_p(val, port) ((port) < 1024 ? isa_rom_outl_p((val), (port)) : out_le32((port), (val)))
+#define outl		isa_outl
+#define outl_p		isa_outl_p
 
 #define insb(port, buf, nr)	((port) < 1024 ? isa_rom_insb((port), (buf), (nr)) : isa_insb((port), (buf), (nr)))
 #define insw(port, buf, nr)	((port) < 1024 ? isa_rom_insw((port), (buf), (nr)) : isa_insw((port), (buf), (nr)))
-#define insl(port, buf, nr)	((port) < 1024 ? isa_rom_insl((port), (buf), (nr)) : isa_insl((port), (buf), (nr)))
+#define insl			isa_insl
 #define outsb(port, buf, nr)	((port) < 1024 ? isa_rom_outsb((port), (buf), (nr)) : isa_outsb((port), (buf), (nr)))
 #define outsw(port, buf, nr)	((port) < 1024 ? isa_rom_outsw((port), (buf), (nr)) : isa_outsw((port), (buf), (nr)))
-#define outsl(port, buf, nr)	((port) < 1024 ? isa_rom_outsl((port), (buf), (nr)) : isa_outsl((port), (buf), (nr)))
+#define outsl			isa_outsl
 
 #define readb(addr)      in_8(addr)
 #define writeb(val,addr) out_8((addr),(val))

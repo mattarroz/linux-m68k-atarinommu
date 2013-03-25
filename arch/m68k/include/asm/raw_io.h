@@ -70,34 +70,45 @@ extern void __iounmap(void *addr, unsigned long size);
  * For writes, address lines A1-A8 are latched to ISA data lines D0-D7
  * (meaning the bit pattern on A1-A8 can be read back as byte).
  *
+ * Read and write operations are distinguished by the base address used:
+ * reads are from the ROM A side range, writes are through the B side range
+ * addresses (A side base + 0x10000).
+ *
  * Reads and writes are byte only.
+ *
+ * 16 bit reads and writes are necessary for the NetUSBee adapter's USB
+ * chipset - 16 bit words are read straight off the ROM port while 16 bit
+ * reads are split into two byte writes. The low byte is latched to the
+ * NetUSBee buffer by a read from the _read_ window (with the data pattern
+ * asserted as A1-A8 address pattern). The high byte is then written to the
+ * write range as usual, completing the write cycle.
  */
 
 #if defined(CONFIG_ATARI_ROM_ISA)
 #define rom_in_8(addr) \
 	({ u16 __v = (*(__force volatile u16 *) (addr)); __v >>= 8; __v; })
 #define rom_in_be16(addr) \
-	({ u16 __v = (*(__force volatile u16 *) (addr)); __v >>= 8; __v; })
-#define rom_in_be32(addr) \
-	({ u32 __v = (*(__force volatile u32 *) (addr)); __v >>= 8; __v; })
+	({ u16 __v = (*(__force volatile u16 *) (addr)); __v; })
 #define rom_in_le16(addr) \
-	({ u16 __v = le16_to_cpu(*(__force volatile u16 *) (addr)); __v >>= 8; __v; })
-#define rom_in_le32(addr) \
-	({ u32 __v = le32_to_cpu(*(__force volatile u32 *) (addr)); __v >>= 8; __v; })
+	({ u16 __v = le16_to_cpu(*(__force volatile u16 *) (addr)); __v; })
 
-#define rom_out_8(addr, b)	({u8 __w, __v = (b); __w = ((*(__force volatile u8 *)  ((addr) + 0x10000 + (__v<<1)))); })
-#define rom_out_be16(addr, w)	({u16 __w, __v = (w); __w = ((*(__force volatile u16 *) ((addr) + 0x10000 + (__v<<1)))); })
-#define rom_out_be32(addr, l)	({u32 __w, __v = (l); __w = ((*(__force volatile u32 *) ((addr) + 0x10000 + (__v<<1)))); })
-#define rom_out_le16(addr, w)	({u16 __w, __v = cpu_to_le16(w); __w = ((*(__force volatile u16 *) ((addr) + 0x10000 + (__v<<1)))); })
-#define rom_out_le32(addr, l)	({u32 __w, __v = cpu_to_le32(l); __w = ((*(__force volatile u32 *) ((addr) + 0x10000 + (__v<<1)))); })
+#define rom_out_8(addr, b)	\
+	({u8 __w, __v = (b);  u32 _addr = ((u32) (addr)); \
+	__w = ((*(__force volatile u8 *)  ((_addr | 0x10000) + (__v<<1)))); })
+#define rom_out_be16(addr, w)	\
+	({u16 __w, __v = (w); u32 _addr = ((u32) (addr)); \
+	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v & 0xFF)<<1)))); \
+	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v >> 8)<<1)))); })
+#define rom_out_le16(addr, w)	\
+	({u16 __w, __v = (w); u32 _addr = ((u32) (addr)); \
+	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v >> 8)<<1)))); \
+	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v & 0xFF)<<1)))); })
 
 #define raw_rom_inb rom_in_8
 #define raw_rom_inw rom_in_be16
-#define raw_rom_inl rom_in_be32
 
 #define raw_rom_outb(val, port) rom_out_8((port), (val))
 #define raw_rom_outw(val, port) rom_out_be16((port), (val))
-#define raw_rom_outl(val, port) rom_out_be32((port), (val))
 #endif /* CONFIG_ATARI_ROM_ISA */
 
 static inline void raw_insb(volatile u8 __iomem *port, u8 *buf, unsigned int len)
@@ -435,24 +446,6 @@ static inline void raw_rom_outsw_swapw(volatile u16 __iomem *port, const u16 *bu
 
 	for (i = 0; i < nr; i++)
 		rom_out_le16(port, *buf++);
-}
-
-static inline void raw_rom_insl(volatile u16 __iomem *port, u32 *buf,
-				   unsigned int nr)
-{
-	unsigned int i;
-
-	for (i = 0; i < nr; i++)
-		*buf++ = rom_in_be32(port);
-}
-
-static inline void raw_rom_outsl(volatile u16 __iomem *port, const u32 *buf,
-				   unsigned int nr)
-{
-	unsigned int i;
-
-	for (i = 0; i < nr; i++)
-		rom_out_be32(port, *buf++);
 }
 #endif /* CONFIG_ATARI_ROM_ISA */
 

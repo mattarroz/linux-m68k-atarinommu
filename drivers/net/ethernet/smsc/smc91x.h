@@ -231,7 +231,7 @@ SMC_outw(u16 val, void __iomem *ioaddr, int reg)
 
 #include <unit/smc91111.h>
 
-#elif defined(CONFIG_ATARI_ETHERNAT) || defined(CONFIG_ATARI_ETHERNAT_MODULE)
+#elif defined(CONFIG_ATARI)
 
 #define SMC_CAN_USE_8BIT        1
 #define SMC_CAN_USE_16BIT       1
@@ -254,8 +254,6 @@ SMC_outw(u16 val, void __iomem *ioaddr, int reg)
 
 #define RPC_LSA_DEFAULT         RPC_LED_100_10
 #define RPC_LSB_DEFAULT         RPC_LED_TX_RX
-
-#define SMC_DYNAMIC_BUS_CONFIG
 
 #elif defined(CONFIG_ARCH_MSM)
 
@@ -1142,7 +1140,7 @@ static const char * chip_ids[ 16 ] =  {
 		}							\
 	} while (0)
 
-#if defined(CONFIG_ATARI_ETHERNAT) || defined(CONFIG_ATARI_ETHERNAT_MODULE)
+#if defined(CONFIG_ATARI)
 /*
  * MSch: EtherNAT is 32 bit, so the misaligned data buffer hack applies.
  * This appears to hurt quite a lot ... we actually need to byte swap the

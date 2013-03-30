@@ -661,7 +661,6 @@ static void atari_get_hardware_list(struct seq_file *m)
  * MSch: initial platform device support for Atari, required for EtherNAT
  */
 
-#define ATARI_ETHERNAT_PHYS_ADDR	0x80000000
 #define ATARI_ETHERNAT_IRQ		140
 
 static struct resource smc91x_resources[] = {

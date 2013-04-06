@@ -658,7 +658,13 @@ static void atari_get_hardware_list(struct seq_file *m)
 }
 
 /*
- * MSch: initial platform device support for Atari, required for EtherNAT
+ * MSch: initial platform device support for Atari,
+ * required for EtherNAT/EtherNEC/NetUSBee drivers
+ */
+
+#ifdef CONFIG_ATARI_ETHERNAT
+/*
+ * EtherNAT: SMC91C111 Ethernet chipset, handled by smc91x driver
  */
 
 #define ATARI_ETHERNAT_IRQ		140
@@ -685,16 +691,31 @@ static struct platform_device smc91x_device = {
 	.resource	= smc91x_resources,
 };
 
-static struct platform_device *atari_platform_devices[] __initdata = {
+static struct platform_device *atari_ethernat_devices[] __initdata = {
 	&smc91x_device
 };
+#endif /* CONFIG_ATARI_ETHERNAT */
 
 int __init atari_platform_init(void)
 {
+	int rv = 0;
+
 	if (!MACH_IS_ATARI)
 		return -ENODEV;
 
-	return platform_add_devices(atari_platform_devices, ARRAY_SIZE(atari_platform_devices));
+#ifdef CONFIG_ATARI_ETHERNAT
+	{
+		unsigned char *enatc_virt;
+		enatc_virt = (unsigned char *)ioremap((ATARI_ETHERNAT_PHYS_ADDR+0x23), 0xf);
+		if (hwreg_present(enatc_virt)) {
+			rv = platform_add_devices(atari_ethernat_devices,
+						ARRAY_SIZE(atari_ethernat_devices));
+		}
+		iounmap(enatc_virt);
+	}
+#endif
+
+	return rv;
 }
 
 arch_initcall(atari_platform_init);

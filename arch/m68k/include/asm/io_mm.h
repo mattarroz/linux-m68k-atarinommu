@@ -405,10 +405,10 @@ static inline void isa_delay(void)
 #define outsw(port, buf, nr)	((port) < 1024 ? isa_rom_outsw((port), (buf), (nr)) : isa_outsw((port), (buf), (nr)))
 #define outsl			isa_outsl
 
-#define readb(addr)      in_8(addr)
-#define writeb(val,addr) out_8((addr),(val))
-#define readw(addr)      in_le16(addr)
-#define writew(val,addr) out_le16((addr),(val))
+#define readb(addr)		in_8(addr)
+#define writeb(val, addr)	out_8((addr), (val))
+#define readw(addr)		in_le16(addr)
+#define writew(val, addr)	out_le16((addr), (val))
 #endif /* CONFIG_ATARI_ROM_ISA */
 
 #if !defined(CONFIG_ISA) && !defined(CONFIG_ATARI_ROM_ISA)

@@ -364,22 +364,45 @@ struct isp116x_ep {
 #define	IRQ_TEST()	do{}while(0)
 #endif
 
+
+#ifdef CONFIG_ATARI
+  /*
+   * 16 bit data bus byte swapped in hardware on both Atari variants.
+   * EtherNAT variant of ISP1160 integration is memory mapped at 0x800000XX,
+   * and uses regular readw/__raw_readw (but semantics swapped).
+   * NetUSBee variant is hooked up through ROM port and uses ROM port
+   * IO access, with fake IO address of 0x3XX.
+   * Selection of the appropriate accessors relies on ioremapped addresses still
+   * retaining the 0x3XX bit.
+   */
+#define isp_readw(p)		((((unsigned long)(__pa(p)) & 0x00000F00) == 0x00000300UL) ? isa_rom_readw_raw(__pa(p)) : __raw_readw((p)))
+#define isp_writew(v, p)	((((unsigned long)(__pa(p)) & 0x00000F00) == 0x00000300UL) ? isa_rom_writew_raw((v), __pa(p)) : __raw_writew((v), (p)))
+#define isp_raw_readw(p)	((((unsigned long)(__pa(p)) & 0x00000F00) == 0x00000300UL) ? isa_rom_readw(__pa(p)) : readw((p)))
+#define isp_raw_writew(v, p)	((((unsigned long)(__pa(p)) & 0x00000F00) == 0x00000300UL) ? isa_rom_writew((v), __pa(p)) : writew((v), (p)))
+#else
+  /* sane hardware */
+#define isp_readw		readw
+#define isp_writew		writew
+#define isp_raw_readw		__raw_readw
+#define isp_raw_writew		__raw_writew
+#endif
+
 static inline void isp116x_write_addr(struct isp116x *isp116x, unsigned reg)
 {
 	IRQ_TEST();
-	writew(reg & 0xff, isp116x->addr_reg);
+	isp_writew(reg & 0xff, isp116x->addr_reg);
 	isp116x_delay(isp116x, 300);
 }
 
 static inline void isp116x_write_data16(struct isp116x *isp116x, u16 val)
 {
-	writew(val, isp116x->data_reg);
+	isp_writew(val, isp116x->data_reg);
 	isp116x_delay(isp116x, 150);
 }
 
 static inline void isp116x_raw_write_data16(struct isp116x *isp116x, u16 val)
 {
-	__raw_writew(val, isp116x->data_reg);
+	isp_raw_writew(val, isp116x->data_reg);
 	isp116x_delay(isp116x, 150);
 }
 
@@ -387,7 +410,7 @@ static inline u16 isp116x_read_data16(struct isp116x *isp116x)
 {
 	u16 val;
 
-	val = readw(isp116x->data_reg);
+	val = isp_readw(isp116x->data_reg);
 	isp116x_delay(isp116x, 150);
 	return val;
 }
@@ -396,16 +419,16 @@ static inline u16 isp116x_raw_read_data16(struct isp116x *isp116x)
 {
 	u16 val;
 
-	val = __raw_readw(isp116x->data_reg);
+	val = isp_raw_readw(isp116x->data_reg);
 	isp116x_delay(isp116x, 150);
 	return val;
 }
 
 static inline void isp116x_write_data32(struct isp116x *isp116x, u32 val)
 {
-	writew(val & 0xffff, isp116x->data_reg);
+	isp_writew(val & 0xffff, isp116x->data_reg);
 	isp116x_delay(isp116x, 150);
-	writew(val >> 16, isp116x->data_reg);
+	isp_writew(val >> 16, isp116x->data_reg);
 	isp116x_delay(isp116x, 150);
 }
 
@@ -413,9 +436,9 @@ static inline u32 isp116x_read_data32(struct isp116x *isp116x)
 {
 	u32 val;
 
-	val = (u32) readw(isp116x->data_reg);
+	val = (u32) isp_readw(isp116x->data_reg);
 	isp116x_delay(isp116x, 150);
-	val |= ((u32) readw(isp116x->data_reg)) << 16;
+	val |= ((u32) isp_readw(isp116x->data_reg)) << 16;
 	isp116x_delay(isp116x, 150);
 	return val;
 }

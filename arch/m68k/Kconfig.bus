@@ -55,6 +55,17 @@ config ATARI_ROM_ISA
 	  The only driver currently using this adapter is the EtherNEC
 	  driver for RTL8019AS based NE2000 compatible network cards.
 
+config ATARI_USB
+	bool "Atari USB host controller support"
+	depends on ATARI
+	select USB_SUPPORT
+	select USB_ARCH_HAS_HCD
+	help
+	  This option enables support for USB host controllers contained on
+	  the EtherNAT and NetUSBee cards for Atari. You will have to select
+	  an appropriate HCD driver in the USB section (the ISP1160 one is
+	  the most commonly used one).
+
 config GENERIC_ISA_DMA
 	def_bool ISA
 

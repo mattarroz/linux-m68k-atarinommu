@@ -41,7 +41,6 @@ struct adb_driver {
 #define ADBREQ_REPLY	1	/* expect reply */
 #define ADBREQ_SYNC	2	/* poll until done */
 #define ADBREQ_NOSEND	4	/* build the request, but don't send it */
-#define ADBREQ_RAW	8	/* send raw packet (don't prepend ADB_PACKET) */
 
 /* Messages sent thru the client_list notifier. You should NOT stop
    the operation, at least not with this version */

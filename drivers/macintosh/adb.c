@@ -414,14 +414,13 @@ adb_request(struct adb_request *req, void (*done)(struct adb_request *),
 	if (nbytes < 1)
 		return -EINVAL;
 
-	i = (flags & ADBREQ_RAW) ? 0 : 1;
-	req->nbytes = nbytes+i;
+	req->nbytes = nbytes+1;
 	req->done = done;
 	req->reply_expected = flags & ADBREQ_REPLY;
 	req->data[0] = ADB_PACKET;
 	va_start(list, nbytes);
-	while (i < req->nbytes)
-		req->data[i++] = va_arg(list, int);
+	for (i = 0; i < nbytes; ++i)
+		req->data[i+1] = va_arg(list, int);
 	va_end(list);
 
 	if (flags & ADBREQ_NOSEND)

@@ -59,7 +59,6 @@ config ATARI_USB
 	bool "Atari USB host controller support"
 	depends on ATARI
 	select USB_SUPPORT
-	select USB_ARCH_HAS_HCD
 	help
 	  This option enables support for USB host controllers contained on
 	  the EtherNAT and NetUSBee cards for Atari. You will have to select

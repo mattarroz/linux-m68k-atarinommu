@@ -330,8 +330,11 @@ void __init atari_init_IRQ(void)
 	sound_ym.rd_data_reg_sel = 7;
 	sound_ym.wd_data = 0xff;
 
-	m68k_setup_irq_controller(&atari_mfptimer_chip, handle_polled_irq,
+	m68k_setup_irq_controller(&atari_mfptimer_chip, handle_simple_irq,
 				  IRQ_MFP_TIMER1, 8);
+
+	irq_set_status_flags(IRQ_MFP_TIMER1, IRQ_IS_POLLED);
+	irq_set_status_flags(IRQ_MFP_TIMER2, IRQ_IS_POLLED);
 
 	/* prepare timer D data for use as poll interrupt */
 	/* set Timer D data Register - needs to be > 0 */

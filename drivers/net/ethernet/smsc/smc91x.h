@@ -1179,7 +1179,7 @@ static const char * chip_ids[ 16 ] =  {
 				SMC_outsw(ioaddr, DATA_REG(lp), __ptr, 1); \
 			}						\
 		} else if (SMC_16BIT(lp))				\
-			SMC_outsw(ioaddr, DATA_REG(lp), (u16 *) p, (l) >> 1);	\
+			SMC_outsw(ioaddr, DATA_REG(lp), p, (l) >> 1);	\
 		else if (SMC_8BIT(lp))				\
 			SMC_outsb(ioaddr, DATA_REG(lp), p, l);	\
 	} while (0)
@@ -1215,7 +1215,7 @@ static const char * chip_ids[ 16 ] =  {
 			__len += 2;					\
 			SMC_insl(__ioaddr, DATA_REG(lp), __ptr, __len>>2); \
 		} else if (SMC_16BIT(lp))				\
-			SMC_insw(ioaddr, DATA_REG(lp), (u16 *) p, (l) >> 1);	\
+			SMC_insw(ioaddr, DATA_REG(lp), p, (l) >> 1);	\
 		else if (SMC_8BIT(lp))				\
 			SMC_insb(ioaddr, DATA_REG(lp), p, l);		\
 	} while (0)

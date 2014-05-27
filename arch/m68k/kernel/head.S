@@ -273,7 +273,7 @@
 
 #ifdef CONFIG_EARLY_PRINTK
 #  define SERIAL_DEBUG
-#  ifdef CONFIG_MAC
+#  if defined(CONFIG_MAC) && defined(CONFIG_FONT_SUPPORT)
 #    define CONSOLE_DEBUG
 #  endif
 #endif

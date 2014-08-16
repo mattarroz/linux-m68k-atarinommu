@@ -355,7 +355,7 @@ struct isp116x_ep {
 #endif
 
 
-#ifdef CONFIG_ATARI
+#ifdef CONFIG_ATARI_ROM_ISA
   /*
    * 16 bit data bus byte swapped in hardware on both Atari variants.
    * EtherNAT variant of ISP1160 integration is memory mapped at 0x800000XX,

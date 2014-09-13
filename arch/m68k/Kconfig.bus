@@ -52,8 +52,10 @@ config ATARI_ROM_ISA
 	  This option enables support for the ROM port ISA adapter used to
 	  operate ISA cards on Atari. Only 8  bit cards are supported, and
 	  no interrupt lines are connected.
-	  The only driver currently using this adapter is the EtherNEC
-	  driver for RTL8019AS based NE2000 compatible network cards.
+	  The only drivers currently using this adapter are the NE2000 ISA
+	  driver for EtherNEC (RTL8019AS based NE2000 compatible network
+	  cards), and drivers for the NetUSBee (RTL8019AS / ISP1160 ethernet/
+	  USB combo card).
 
 config ATARI_USB
 	bool "Atari USB host controller support"
@@ -64,6 +66,8 @@ config ATARI_USB
 	  the EtherNAT and NetUSBee cards for Atari. You will have to select
 	  an appropriate HCD driver in the USB section (the ISP1160 one is
 	  the most commonly used one).
+	  Support for the NetUSBee in the ISP116x host controller driver also
+	  requires the ATARI_ROM_ISA option to be set.
 
 config GENERIC_ISA_DMA
 	def_bool ISA

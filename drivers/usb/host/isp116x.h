@@ -369,6 +369,14 @@ struct isp116x_ep {
 #define isp_writew(v, p)	((((unsigned long)(__pa(p)) & 0x00000F00) == 0x00000300UL) ? isa_rom_writew_raw((v), __pa(p)) : __raw_writew((v), (p)))
 #define isp_raw_readw(p)	((((unsigned long)(__pa(p)) & 0x00000F00) == 0x00000300UL) ? isa_rom_readw(__pa(p)) : readw((p)))
 #define isp_raw_writew(v, p)	((((unsigned long)(__pa(p)) & 0x00000F00) == 0x00000300UL) ? isa_rom_writew((v), __pa(p)) : writew((v), (p)))
+#elif defined(CONFIG_ATARI)
+  /*
+   * 16 bit data bus byte swapped in hardware on EtherNAT only.
+   */
+#define isp_readw		__raw_readw
+#define isp_writew		__raw_writew
+#define isp_raw_readw		readw
+#define isp_raw_writew		writew
 #else
   /* sane hardware */
 #define isp_readw		readw

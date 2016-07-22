@@ -13,7 +13,6 @@ config AMIGA
 
 config ATARI
 	bool "Atari support"
-	depends on MMU
 	select MMU_MOTOROLA if MMU
 	help
 	  This option enables support for the 68000-based Atari series of

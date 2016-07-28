@@ -36,12 +36,15 @@ asmlinkage void nmihandler(void);
 asmlinkage void fpu_emu(void);
 #endif
 
+#ifndef CONFIG_M68000
 e_vector vectors[256];
+
 
 /* nmi handler for the Amiga */
 asm(".text\n"
     __ALIGN_STR "\n"
     "nmihandler: rte");
+#endif
 
 /*
  * this must be called very early as the kernel might
@@ -50,6 +53,7 @@ asm(".text\n"
  */
 void __init base_trap_init(void)
 {
+#ifndef CONFIG_M68000
 	if (MACH_IS_SUN3X) {
 		extern e_vector *sun3x_prom_vbr;
 
@@ -65,6 +69,7 @@ void __init base_trap_init(void)
 
 		vectors[VEC_UNIMPII] = unimp_vec;
 	}
+#endif
 
 	vectors[VEC_BUSERR] = buserr;
 	vectors[VEC_ILLEGAL] = trap;
@@ -89,7 +94,7 @@ void __init trap_init (void)
 	if (FPU_IS_EMU)
 		vectors[VEC_LINE11] = fpu_emu;
 #endif
-
+#ifndef CONFIG_M68000
 	if (CPU_IS_040 && !FPU_IS_EMU) {
 		/* set up FPSP entry points */
 		asmlinkage void dz_vec(void) asm ("dz");
@@ -140,5 +145,6 @@ void __init trap_init (void)
 	if (MACH_IS_AMIGA) {
 		vectors[VEC_INT7] = nmihandler;
 	}
+#endif
 }
 

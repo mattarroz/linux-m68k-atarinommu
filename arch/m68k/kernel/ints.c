@@ -76,7 +76,9 @@ void __init m68k_setup_auto_interrupt(void (*handler)(unsigned int, struct pt_re
 {
 	if (handler)
 		*auto_irqhandler_fixup = (u32)handler;
+#ifndef CONFIG_M68000
 	flush_icache();
+#endif
 }
 
 /**
@@ -97,7 +99,9 @@ void __init m68k_setup_user_interrupt(unsigned int vec, unsigned int cnt)
 	for (i = 0; i < cnt; i++)
 		irq_set_chip_and_handler(i, &user_irq_chip, handle_simple_irq);
 	*user_irqvec_fixup = vec - IRQ_USER;
+#ifndef CONFIG_M68000
 	flush_icache();
+#endif
 }
 
 /**
@@ -128,7 +132,33 @@ void m68k_setup_irq_controller(struct irq_chip *chip,
 unsigned int m68k_irq_startup_irq(unsigned int irq)
 {
 	if (irq <= IRQ_AUTO_7)
+#ifdef CONFIG_M68000
+               switch (irq) {
+               case IRQ_AUTO_1:
+                       vectors[VEC_INT1] = auto1_inthandler;
+                       break;
+               case IRQ_AUTO_2:
+                       vectors[VEC_INT2] = auto2_inthandler;
+                       break;
+               case IRQ_AUTO_3:
+                       vectors[VEC_INT3] = auto3_inthandler;
+                       break;
+               case IRQ_AUTO_4:
+                       vectors[VEC_INT4] = auto4_inthandler;
+                       break;
+               case IRQ_AUTO_5:
+                       vectors[VEC_INT5] = auto5_inthandler;
+                       break;
+               case IRQ_AUTO_6:
+                       vectors[VEC_INT6] = auto6_inthandler;
+                       break;
+               case IRQ_AUTO_7:
+                       vectors[VEC_INT7] = auto7_inthandler;
+                       break;
+               }	
+#else
 		vectors[VEC_SPUR + irq] = auto_inthandler;
+#endif
 	else
 		vectors[m68k_first_user_vec + irq - IRQ_USER] = user_inthandler;
 	return 0;

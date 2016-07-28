@@ -21,6 +21,13 @@ obj-y	:= entry.o irq.o m68k_ksyms.o module.o process.o ptrace.o
 obj-y	+= setup.o signal.o sys_m68k.o syscalltable.o time.o traps.o
 
 obj-$(CONFIG_MMU_MOTOROLA) += ints.o vectors.o
+ifndef CONFIG_MMU
+ ifdef CONFIG_ATARI
+  obj-y                 += ints.o vectors.o
+ endif
+endif
+
+
 obj-$(CONFIG_MMU_SUN3) += ints.o vectors.o
 obj-$(CONFIG_PCI) += pcibios.o
 

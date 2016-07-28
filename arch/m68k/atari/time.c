@@ -165,6 +165,8 @@ int atari_mste_hwclk( int op, struct rtc_time *t )
 
 int atari_tt_hwclk( int op, struct rtc_time *t )
 {
+/* FIXME: This is possibly a dirty hack */
+#ifndef CONFIG_M68000
     int sec=0, min=0, hour=0, day=0, mon=0, year=0, wday=0;
     unsigned long	flags;
     unsigned char	ctrl;
@@ -281,7 +283,7 @@ int atari_tt_hwclk( int op, struct rtc_time *t )
         t->tm_year = year + atari_rtc_year_offset;
         t->tm_wday = wday - 1;
     }
-
+#endif
     return( 0 );
 }
 
@@ -312,6 +314,7 @@ int atari_mste_set_clock_mmss (unsigned long nowtime)
 int atari_tt_set_clock_mmss (unsigned long nowtime)
 {
     int retval = 0;
+#ifndef CONFIG_M68000
     short real_seconds = nowtime % 60, real_minutes = (nowtime / 60) % 60;
     unsigned char save_control, save_freq_select, rtc_minutes;
 
@@ -345,6 +348,7 @@ int atari_tt_set_clock_mmss (unsigned long nowtime)
 
     RTC_WRITE (RTC_FREQ_SELECT, save_freq_select);
     RTC_WRITE (RTC_CONTROL, save_control);
+#endif
     return retval;
 }
 

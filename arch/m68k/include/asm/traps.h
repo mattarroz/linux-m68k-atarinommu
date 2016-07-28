@@ -17,13 +17,25 @@
 #include <asm/ptrace.h>
 
 typedef void (*e_vector)(void);
-extern e_vector vectors[];
 extern e_vector *_ramvec;
 
+#ifdef CONFIG_M68000
+#define vectors		((e_vector *)0)
+asmlinkage void auto1_inthandler(void);
+asmlinkage void auto2_inthandler(void);
+asmlinkage void auto3_inthandler(void);
+asmlinkage void auto4_inthandler(void);
+asmlinkage void auto5_inthandler(void);
+asmlinkage void auto6_inthandler(void);
+asmlinkage void auto7_inthandler(void);
+asmlinkage void user5_inthandler(void);
+#else /* 68010 or higher */
+extern e_vector vectors[];
 asmlinkage void auto_inthandler(void);
+#endif /* 68010 or higher */
+
 asmlinkage void user_inthandler(void);
 asmlinkage void bad_inthandler(void);
-
 #endif
 
 #define VEC_RESETSP (0)

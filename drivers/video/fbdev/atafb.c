@@ -3168,6 +3168,7 @@ int __init atafb_init(void)
 		phys_screen_base = atari_stram_to_phys(screen_base + ovsc_offset);
 		screen_len = (mem_req - pad - ovsc_offset) & PAGE_MASK;
 		st_ovsc_switch();
+#ifndef CONFIG_M68000
 		if (CPU_IS_040_OR_060) {
 			/* On a '040+, the cache mode of video RAM must be set to
 			 * write-through also for internal video hardware! */
@@ -3175,6 +3176,7 @@ int __init atafb_init(void)
 			kernel_set_cachemode(screen_base, screen_len,
 					     IOMAP_WRITETHROUGH);
 		}
+#endif
 		printk("atafb: screen_base %p phys_screen_base %lx screen_len %d\n",
 			screen_base, phys_screen_base, screen_len);
 #ifdef ATAFB_EXT

@@ -14,6 +14,7 @@ config AMIGA
 config ATARI
 	bool "Atari support"
 	select MMU_MOTOROLA if MMU
+	select ARCH_USES_GETTIMEOFFSET
 	help
 	  This option enables support for the 68000-based Atari series of
 	  computers (including the TT, Falcon and Medusa). If you plan to use

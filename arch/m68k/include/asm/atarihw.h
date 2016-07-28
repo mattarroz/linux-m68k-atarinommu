@@ -22,7 +22,11 @@
 
 #include <linux/types.h>
 #include <asm/bootinfo-atari.h>
-#include <asm/raw_io.h>
+#ifdef CONFIG_M68000
+# include <asm/io_no.h>
+#else
+# include <asm/raw_io.h>
+#endif
 
 extern u_long atari_mch_cookie;
 extern u_long atari_mch_type;

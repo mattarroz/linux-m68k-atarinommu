@@ -45,7 +45,11 @@
 #include <asm/atari_stram.h>
 #include <asm/machdep.h>
 #include <asm/hwtest.h>
+#ifdef CONFIG_M68000
+#include <asm/io_no.h>
+#else
 #include <asm/io.h>
+#endif
 
 u_long atari_mch_cookie;
 EXPORT_SYMBOL(atari_mch_cookie);
@@ -381,6 +385,7 @@ void __init config_atari(void)
 	}
 	printk("\n");
 
+#ifndef	CONFIG_M68000
 	if (CPU_IS_040_OR_060)
 		/* Now it seems to be safe to turn of the tt0 transparent
 		 * translation (the one that must not be turned off in
@@ -395,6 +400,7 @@ void __init config_atari(void)
 			: /* no outputs */
 			: /* no inputs */
 			: "d0");
+#endif
 
 	/* allocator for memory that must reside in st-ram */
 	atari_stram_init();
@@ -410,6 +416,7 @@ void __init config_atari(void)
 	 * design of the bus.
 	 */
 
+#ifndef	CONFIG_M68000
 	if (CPU_IS_020_OR_030) {
 		unsigned long tt1_val;
 		tt1_val = 0xfe008543;	/* Translate 0xfexxxxxx, enable, cache
@@ -432,6 +439,7 @@ void __init config_atari(void)
 						 * serialized, writable */
 
 	}
+#endif
 
 	/* Fetch tos version at Physical 2 */
 	/*
@@ -519,6 +527,7 @@ static void atari_reset(void)
 	 * instruction doesn't work.
 	 */
 	local_irq_disable();
+#ifndef CONFIG_M68000
 	asm volatile ("movec	%0,%%vbr"
 			: : "d" (0));
 
@@ -576,6 +585,7 @@ static void atari_reset(void)
 			"	jmp	%1@"
 			: /* no outputs */
 			: "m" (tc_val), "a" (reset_addr));
+#endif
 }
 
 

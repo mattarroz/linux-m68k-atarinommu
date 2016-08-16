@@ -29,10 +29,27 @@ int hwreg_present(volatile void *regp)
 {
 	int ret = 0;
 	unsigned long flags;
-	long save_sp, save_vbr;
+	long save_sp;
+#ifndef CONFIG_M68000
+	long save_vbr;
 	long tmp_vectors[3];
+#endif
 
 	local_irq_save(flags);
+/* The 68000 does not have a VBR */
+#ifdef CONFIG_M68000
+	__asm__ __volatile__ (
+		"movel %/sp,%1\n\t"
+		"moveq #0,%0\n\t"
+		"tstb %2@\n\t"
+		"nop\n\t"
+		"moveq #1,%0\n"
+	"Lberr1:\n\t"
+		"movel %1,%/sp\n\t"
+		: "=&d" (ret), "=&r" (save_sp)
+		: "a" (regp)
+	);
+#else
 	__asm__ __volatile__ (
 		"movec %/vbr,%2\n\t"
 		"movel #Lberr1,%4@(8)\n\t"
@@ -48,6 +65,7 @@ int hwreg_present(volatile void *regp)
 		: "=&d" (ret), "=&r" (save_sp), "=&r" (save_vbr)
 		: "a" (regp), "a" (tmp_vectors)
 	);
+#endif
 	local_irq_restore(flags);
 
 	return ret;
@@ -62,10 +80,29 @@ int hwreg_write(volatile void *regp, unsigned short val)
 {
 	int ret;
 	unsigned long flags;
-	long save_sp, save_vbr;
+	long save_sp;
+#ifndef CONFIG_M68000
+	long save_vbr;
 	long tmp_vectors[3];
+#endif
 
 	local_irq_save(flags);
+/* The 68000 does not have a VBR */
+#ifdef CONFIG_M68000
+	__asm__ __volatile__ (
+		"movel %/sp,%1\n\t"
+		"moveq #0,%0\n\t"
+		"movew %3,%2@\n\t"
+		"nop\n\t"
+		/*
+		 * If this nop isn't present, 'ret' may already be loaded
+		 * with 1 at the time the bus error happens!
+		 */
+		"moveq #1,%0\n"
+		: "=&d" (ret), "=&r" (save_sp)
+		: "a" (regp), "g" (val)
+	);
+#else
 	__asm__ __volatile__ (
 		"movec %/vbr,%2\n\t"
 		"movel #Lberr2,%4@(8)\n\t"
@@ -85,6 +122,7 @@ int hwreg_write(volatile void *regp, unsigned short val)
 		: "=&d" (ret), "=&r" (save_sp), "=&r" (save_vbr)
 		: "a" (regp), "a" (tmp_vectors), "g" (val)
 	);
+#endif
 	local_irq_restore(flags);
 
 	return ret;

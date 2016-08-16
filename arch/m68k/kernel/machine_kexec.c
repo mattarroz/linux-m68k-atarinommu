@@ -36,6 +36,7 @@ typedef void (*relocate_kernel_t)(unsigned long ptr,
 
 void machine_kexec(struct kimage *image)
 {
+#ifdef CONFIG_MMU
 	void *reboot_code_buffer;
 	unsigned long cpu_mmu_flags;
 
@@ -55,4 +56,5 @@ void machine_kexec(struct kimage *image)
 	((relocate_kernel_t) reboot_code_buffer)(image->head & PAGE_MASK,
 						 image->start,
 						 cpu_mmu_flags);
+#endif
 }

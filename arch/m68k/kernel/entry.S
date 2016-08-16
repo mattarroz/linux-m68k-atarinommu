@@ -185,7 +185,7 @@ ENTRY(auto_inthandler2)
 	SAVE_ALL_INT
 	movel	%sp,%sp@-
 	movel	#VEC_INT2,%sp@- 		/*  put vector # on stack*/
-auto_irqhandler_fixup = . + 2
+
 	jsr	do_IRQ			|  process the IRQ
 	addql	#8,%sp			|  pop parameters off stack
 	jra	ret_from_exception
@@ -194,7 +194,7 @@ ENTRY(auto_inthandler3)
 	SAVE_ALL_INT
 	movel	%sp,%sp@-
 	movel	#VEC_INT3,%sp@- 		/*  put vector # on stack*/
-auto_irqhandler_fixup = . + 2
+
 	jsr	do_IRQ			|  process the IRQ
 	addql	#8,%sp			|  pop parameters off stack
 	jra	ret_from_exception
@@ -203,7 +203,7 @@ ENTRY(auto_inthandler4)
 	SAVE_ALL_INT
 	movel	%sp,%sp@-
 	movel	#VEC_INT4,%sp@- 		/*  put vector # on stack*/
-auto_irqhandler_fixup = . + 2
+
 	jsr	do_IRQ			|  process the IRQ
 	addql	#8,%sp			|  pop parameters off stack
 	jra	ret_from_exception
@@ -212,7 +212,7 @@ ENTRY(auto_inthandler5)
 	SAVE_ALL_INT
 	movel	%sp,%sp@-
 	movel	#VEC_INT5,%sp@- 		/*  put vector # on stack*/
-auto_irqhandler_fixup = . + 2
+
 	jsr	do_IRQ			|  process the IRQ
 	addql	#8,%sp			|  pop parameters off stack
 	jra	ret_from_exception
@@ -221,7 +221,7 @@ ENTRY(auto_inthandler6)
 	SAVE_ALL_INT
 	movel	%sp,%sp@-
 	movel	#VEC_INT6,%sp@- 		/*  put vector # on stack*/
-auto_irqhandler_fixup = . + 2
+
 	jsr	do_IRQ			|  process the IRQ
 	addql	#8,%sp			|  pop parameters off stack
 	jra	ret_from_exception
@@ -230,14 +230,17 @@ ENTRY(auto_inthandler7)
 	SAVE_ALL_INT
 	movel	%sp,%sp@-
 	movel	#VEC_INT7,%sp@- 		/*  put vector # on stack*/
-auto_irqhandler_fixup = . + 2
+
 	jsr	do_IRQ			|  process the IRQ
 	addql	#8,%sp			|  pop parameters off stack
 	jra	ret_from_exception
 
 ENTRY(user_inthandler1)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
+	user_irqvec_fixup = . + 2 /* FIXME_Matthias: not sure if it is enough to have
+							   * this only at this point or if all other
+							   * user_inthandlers need that as well
+							   */
 
 	movel	%sp,%sp@-
 	movel	#VEC_USER+1,%sp@-		|  put vector # on stack
@@ -246,8 +249,6 @@ ENTRY(user_inthandler1)
 	jra	ret_from_exception
 ENTRY(user_inthandler2)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+2,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -255,8 +256,6 @@ ENTRY(user_inthandler2)
 	jra	ret_from_exception
 ENTRY(user_inthandler3)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+3,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -264,8 +263,6 @@ ENTRY(user_inthandler3)
 	jra	ret_from_exception
 ENTRY(user_inthandler4)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+4,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -273,8 +270,6 @@ ENTRY(user_inthandler4)
 	jra	ret_from_exception
 ENTRY(user_inthandler5)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+5,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -282,8 +277,6 @@ ENTRY(user_inthandler5)
 	jra	ret_from_exception
 ENTRY(user_inthandler6)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+6,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -291,8 +284,6 @@ ENTRY(user_inthandler6)
 	jra	ret_from_exception
 ENTRY(user_inthandler7)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+7,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -300,8 +291,6 @@ ENTRY(user_inthandler7)
 	jra	ret_from_exception
 ENTRY(user_inthandler8)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+8,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -309,8 +298,6 @@ ENTRY(user_inthandler8)
 	jra	ret_from_exception
 ENTRY(user_inthandler9)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+9,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -318,8 +305,6 @@ ENTRY(user_inthandler9)
 	jra	ret_from_exception
 ENTRY(user_inthandler10)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+10,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -327,8 +312,6 @@ ENTRY(user_inthandler10)
 	jra	ret_from_exception
 ENTRY(user_inthandler11)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+11,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -336,8 +319,6 @@ ENTRY(user_inthandler11)
 	jra	ret_from_exception
 ENTRY(user_inthandler12)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+12,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -345,8 +326,6 @@ ENTRY(user_inthandler12)
 	jra	ret_from_exception
 ENTRY(user_inthandler13)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+13,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -354,8 +333,6 @@ ENTRY(user_inthandler13)
 	jra	ret_from_exception
 ENTRY(user_inthandler14)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+14,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -363,8 +340,6 @@ ENTRY(user_inthandler14)
 	jra	ret_from_exception
 ENTRY(user_inthandler15)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+15,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -372,8 +347,6 @@ ENTRY(user_inthandler15)
 	jra	ret_from_exception
 ENTRY(user_inthandler16)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+16,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -381,8 +354,6 @@ ENTRY(user_inthandler16)
 	jra	ret_from_exception
 ENTRY(user_inthandler17)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+17,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -390,8 +361,6 @@ ENTRY(user_inthandler17)
 	jra	ret_from_exception
 ENTRY(user_inthandler18)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+18,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -399,8 +368,6 @@ ENTRY(user_inthandler18)
 	jra	ret_from_exception
 ENTRY(user_inthandler19)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+19,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -408,8 +375,6 @@ ENTRY(user_inthandler19)
 	jra	ret_from_exception
 ENTRY(user_inthandler20)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+20,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -417,8 +382,6 @@ ENTRY(user_inthandler20)
 	jra	ret_from_exception
 ENTRY(user_inthandler21)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+21,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -426,8 +389,6 @@ ENTRY(user_inthandler21)
 	jra	ret_from_exception
 ENTRY(user_inthandler22)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+22,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -435,8 +396,6 @@ ENTRY(user_inthandler22)
 	jra	ret_from_exception
 ENTRY(user_inthandler23)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+23,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -444,8 +403,6 @@ ENTRY(user_inthandler23)
 	jra	ret_from_exception
 ENTRY(user_inthandler24)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+24,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -453,8 +410,6 @@ ENTRY(user_inthandler24)
 	jra	ret_from_exception
 ENTRY(user_inthandler25)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+25,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -462,8 +417,6 @@ ENTRY(user_inthandler25)
 	jra	ret_from_exception
 ENTRY(user_inthandler26)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+26,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -471,8 +424,6 @@ ENTRY(user_inthandler26)
 	jra	ret_from_exception
 ENTRY(user_inthandler27)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+27,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -480,8 +431,6 @@ ENTRY(user_inthandler27)
 	jra	ret_from_exception
 ENTRY(user_inthandler28)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+28,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -489,8 +438,6 @@ ENTRY(user_inthandler28)
 	jra	ret_from_exception
 ENTRY(user_inthandler29)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+29,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -498,8 +445,6 @@ ENTRY(user_inthandler29)
 	jra	ret_from_exception
 ENTRY(user_inthandler30)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+30,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -507,8 +452,6 @@ ENTRY(user_inthandler30)
 	jra	ret_from_exception
 ENTRY(user_inthandler31)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+31,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -516,8 +459,6 @@ ENTRY(user_inthandler31)
 	jra	ret_from_exception
 ENTRY(user_inthandler32)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+32,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -525,8 +466,6 @@ ENTRY(user_inthandler32)
 	jra	ret_from_exception
 ENTRY(user_inthandler33)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+33,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -534,8 +473,6 @@ ENTRY(user_inthandler33)
 	jra	ret_from_exception
 ENTRY(user_inthandler34)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+34,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -543,8 +480,6 @@ ENTRY(user_inthandler34)
 	jra	ret_from_exception
 ENTRY(user_inthandler35)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+35,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -552,8 +487,6 @@ ENTRY(user_inthandler35)
 	jra	ret_from_exception
 ENTRY(user_inthandler36)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+36,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -561,8 +494,6 @@ ENTRY(user_inthandler36)
 	jra	ret_from_exception
 ENTRY(user_inthandler37)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+37,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -570,8 +501,6 @@ ENTRY(user_inthandler37)
 	jra	ret_from_exception
 ENTRY(user_inthandler38)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+38,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -579,8 +508,6 @@ ENTRY(user_inthandler38)
 	jra	ret_from_exception
 ENTRY(user_inthandler39)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+39,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -588,8 +515,6 @@ ENTRY(user_inthandler39)
 	jra	ret_from_exception
 ENTRY(user_inthandler40)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+40,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -597,8 +522,6 @@ ENTRY(user_inthandler40)
 	jra	ret_from_exception
 ENTRY(user_inthandler41)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+41,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -606,8 +529,6 @@ ENTRY(user_inthandler41)
 	jra	ret_from_exception
 ENTRY(user_inthandler42)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+42,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -615,8 +536,6 @@ ENTRY(user_inthandler42)
 	jra	ret_from_exception
 ENTRY(user_inthandler43)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+43,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -624,8 +543,6 @@ ENTRY(user_inthandler43)
 	jra	ret_from_exception
 ENTRY(user_inthandler44)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+44,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -633,8 +550,6 @@ ENTRY(user_inthandler44)
 	jra	ret_from_exception
 ENTRY(user_inthandler45)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+45,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -642,8 +557,6 @@ ENTRY(user_inthandler45)
 	jra	ret_from_exception
 ENTRY(user_inthandler46)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+46,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -651,8 +564,6 @@ ENTRY(user_inthandler46)
 	jra	ret_from_exception
 ENTRY(user_inthandler47)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+47,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -660,8 +571,6 @@ ENTRY(user_inthandler47)
 	jra	ret_from_exception
 ENTRY(user_inthandler48)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+48,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -669,8 +578,6 @@ ENTRY(user_inthandler48)
 	jra	ret_from_exception
 ENTRY(user_inthandler49)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+49,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -678,8 +585,6 @@ ENTRY(user_inthandler49)
 	jra	ret_from_exception
 ENTRY(user_inthandler50)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+50,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -687,8 +592,6 @@ ENTRY(user_inthandler50)
 	jra	ret_from_exception
 ENTRY(user_inthandler51)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+51,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -696,8 +599,6 @@ ENTRY(user_inthandler51)
 	jra	ret_from_exception
 ENTRY(user_inthandler52)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+52,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -705,8 +606,6 @@ ENTRY(user_inthandler52)
 	jra	ret_from_exception
 ENTRY(user_inthandler53)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+53,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -714,8 +613,6 @@ ENTRY(user_inthandler53)
 	jra	ret_from_exception
 ENTRY(user_inthandler54)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+54,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -723,8 +620,6 @@ ENTRY(user_inthandler54)
 	jra	ret_from_exception
 ENTRY(user_inthandler55)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+55,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -732,8 +627,6 @@ ENTRY(user_inthandler55)
 	jra	ret_from_exception
 ENTRY(user_inthandler56)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+56,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -741,8 +634,6 @@ ENTRY(user_inthandler56)
 	jra	ret_from_exception
 ENTRY(user_inthandler57)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+57,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -750,8 +641,6 @@ ENTRY(user_inthandler57)
 	jra	ret_from_exception
 ENTRY(user_inthandler58)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+58,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -759,8 +648,6 @@ ENTRY(user_inthandler58)
 	jra	ret_from_exception
 ENTRY(user_inthandler59)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+59,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -768,8 +655,6 @@ ENTRY(user_inthandler59)
 	jra	ret_from_exception
 ENTRY(user_inthandler60)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+60,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -777,8 +662,6 @@ ENTRY(user_inthandler60)
 	jra	ret_from_exception
 ENTRY(user_inthandler61)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+61,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -786,8 +669,6 @@ ENTRY(user_inthandler61)
 	jra	ret_from_exception
 ENTRY(user_inthandler62)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+62,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -795,8 +676,6 @@ ENTRY(user_inthandler62)
 	jra	ret_from_exception
 ENTRY(user_inthandler63)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+63,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -804,8 +683,6 @@ ENTRY(user_inthandler63)
 	jra	ret_from_exception
 ENTRY(user_inthandler64)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+64,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -813,8 +690,6 @@ ENTRY(user_inthandler64)
 	jra	ret_from_exception
 ENTRY(user_inthandler65)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+65,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -822,8 +697,6 @@ ENTRY(user_inthandler65)
 	jra	ret_from_exception
 ENTRY(user_inthandler66)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+66,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -831,8 +704,6 @@ ENTRY(user_inthandler66)
 	jra	ret_from_exception
 ENTRY(user_inthandler67)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+67,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -840,8 +711,6 @@ ENTRY(user_inthandler67)
 	jra	ret_from_exception
 ENTRY(user_inthandler68)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+68,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -849,8 +718,6 @@ ENTRY(user_inthandler68)
 	jra	ret_from_exception
 ENTRY(user_inthandler69)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+69,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -858,8 +725,6 @@ ENTRY(user_inthandler69)
 	jra	ret_from_exception
 ENTRY(user_inthandler70)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+70,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -867,8 +732,6 @@ ENTRY(user_inthandler70)
 	jra	ret_from_exception
 ENTRY(user_inthandler71)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+71,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -876,8 +739,6 @@ ENTRY(user_inthandler71)
 	jra	ret_from_exception
 ENTRY(user_inthandler72)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+72,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -885,8 +746,6 @@ ENTRY(user_inthandler72)
 	jra	ret_from_exception
 ENTRY(user_inthandler73)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+73,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -894,8 +753,6 @@ ENTRY(user_inthandler73)
 	jra	ret_from_exception
 ENTRY(user_inthandler74)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+74,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -903,8 +760,6 @@ ENTRY(user_inthandler74)
 	jra	ret_from_exception
 ENTRY(user_inthandler75)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+75,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -912,8 +767,6 @@ ENTRY(user_inthandler75)
 	jra	ret_from_exception
 ENTRY(user_inthandler76)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+76,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -921,8 +774,6 @@ ENTRY(user_inthandler76)
 	jra	ret_from_exception
 ENTRY(user_inthandler77)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+77,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -930,8 +781,6 @@ ENTRY(user_inthandler77)
 	jra	ret_from_exception
 ENTRY(user_inthandler78)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+78,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -939,8 +788,6 @@ ENTRY(user_inthandler78)
 	jra	ret_from_exception
 ENTRY(user_inthandler79)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+79,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -948,8 +795,6 @@ ENTRY(user_inthandler79)
 	jra	ret_from_exception
 ENTRY(user_inthandler80)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+80,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -957,8 +802,6 @@ ENTRY(user_inthandler80)
 	jra	ret_from_exception
 ENTRY(user_inthandler81)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+81,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -966,8 +809,6 @@ ENTRY(user_inthandler81)
 	jra	ret_from_exception
 ENTRY(user_inthandler82)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+82,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -975,8 +816,6 @@ ENTRY(user_inthandler82)
 	jra	ret_from_exception
 ENTRY(user_inthandler83)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+83,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -984,8 +823,6 @@ ENTRY(user_inthandler83)
 	jra	ret_from_exception
 ENTRY(user_inthandler84)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+84,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -993,8 +830,6 @@ ENTRY(user_inthandler84)
 	jra	ret_from_exception
 ENTRY(user_inthandler85)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+85,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1002,8 +837,6 @@ ENTRY(user_inthandler85)
 	jra	ret_from_exception
 ENTRY(user_inthandler86)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+86,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1011,8 +844,6 @@ ENTRY(user_inthandler86)
 	jra	ret_from_exception
 ENTRY(user_inthandler87)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+87,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1020,8 +851,6 @@ ENTRY(user_inthandler87)
 	jra	ret_from_exception
 ENTRY(user_inthandler88)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+88,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1029,8 +858,6 @@ ENTRY(user_inthandler88)
 	jra	ret_from_exception
 ENTRY(user_inthandler89)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+89,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1038,8 +865,6 @@ ENTRY(user_inthandler89)
 	jra	ret_from_exception
 ENTRY(user_inthandler90)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+90,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1047,8 +872,6 @@ ENTRY(user_inthandler90)
 	jra	ret_from_exception
 ENTRY(user_inthandler91)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+91,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1056,8 +879,6 @@ ENTRY(user_inthandler91)
 	jra	ret_from_exception
 ENTRY(user_inthandler92)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+92,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1065,8 +886,6 @@ ENTRY(user_inthandler92)
 	jra	ret_from_exception
 ENTRY(user_inthandler93)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+93,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1074,8 +893,6 @@ ENTRY(user_inthandler93)
 	jra	ret_from_exception
 ENTRY(user_inthandler94)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+94,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1083,8 +900,6 @@ ENTRY(user_inthandler94)
 	jra	ret_from_exception
 ENTRY(user_inthandler95)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+95,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1092,8 +907,6 @@ ENTRY(user_inthandler95)
 	jra	ret_from_exception
 ENTRY(user_inthandler96)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+96,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1101,8 +914,6 @@ ENTRY(user_inthandler96)
 	jra	ret_from_exception
 ENTRY(user_inthandler97)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+97,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1110,8 +921,6 @@ ENTRY(user_inthandler97)
 	jra	ret_from_exception
 ENTRY(user_inthandler98)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+98,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1119,8 +928,6 @@ ENTRY(user_inthandler98)
 	jra	ret_from_exception
 ENTRY(user_inthandler99)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+99,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1128,8 +935,6 @@ ENTRY(user_inthandler99)
 	jra	ret_from_exception
 ENTRY(user_inthandler100)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+100,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1137,8 +942,6 @@ ENTRY(user_inthandler100)
 	jra	ret_from_exception
 ENTRY(user_inthandler101)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+101,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1146,8 +949,6 @@ ENTRY(user_inthandler101)
 	jra	ret_from_exception
 ENTRY(user_inthandler102)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+102,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1155,8 +956,6 @@ ENTRY(user_inthandler102)
 	jra	ret_from_exception
 ENTRY(user_inthandler103)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+103,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1164,8 +963,6 @@ ENTRY(user_inthandler103)
 	jra	ret_from_exception
 ENTRY(user_inthandler104)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+104,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1173,8 +970,6 @@ ENTRY(user_inthandler104)
 	jra	ret_from_exception
 ENTRY(user_inthandler105)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+105,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1182,8 +977,6 @@ ENTRY(user_inthandler105)
 	jra	ret_from_exception
 ENTRY(user_inthandler106)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+106,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1191,8 +984,6 @@ ENTRY(user_inthandler106)
 	jra	ret_from_exception
 ENTRY(user_inthandler107)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+107,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1200,8 +991,6 @@ ENTRY(user_inthandler107)
 	jra	ret_from_exception
 ENTRY(user_inthandler108)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+108,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1209,8 +998,6 @@ ENTRY(user_inthandler108)
 	jra	ret_from_exception
 ENTRY(user_inthandler109)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+109,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1218,8 +1005,6 @@ ENTRY(user_inthandler109)
 	jra	ret_from_exception
 ENTRY(user_inthandler110)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+110,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1227,8 +1012,6 @@ ENTRY(user_inthandler110)
 	jra	ret_from_exception
 ENTRY(user_inthandler111)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+111,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1236,8 +1019,6 @@ ENTRY(user_inthandler111)
 	jra	ret_from_exception
 ENTRY(user_inthandler112)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+112,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1245,8 +1026,6 @@ ENTRY(user_inthandler112)
 	jra	ret_from_exception
 ENTRY(user_inthandler113)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+113,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1254,8 +1033,6 @@ ENTRY(user_inthandler113)
 	jra	ret_from_exception
 ENTRY(user_inthandler114)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+114,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1263,8 +1040,6 @@ ENTRY(user_inthandler114)
 	jra	ret_from_exception
 ENTRY(user_inthandler115)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+115,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1272,8 +1047,6 @@ ENTRY(user_inthandler115)
 	jra	ret_from_exception
 ENTRY(user_inthandler116)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+116,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1281,8 +1054,6 @@ ENTRY(user_inthandler116)
 	jra	ret_from_exception
 ENTRY(user_inthandler117)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+117,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1290,8 +1061,6 @@ ENTRY(user_inthandler117)
 	jra	ret_from_exception
 ENTRY(user_inthandler118)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+118,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1299,8 +1068,6 @@ ENTRY(user_inthandler118)
 	jra	ret_from_exception
 ENTRY(user_inthandler119)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+119,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1308,8 +1075,6 @@ ENTRY(user_inthandler119)
 	jra	ret_from_exception
 ENTRY(user_inthandler120)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+120,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1317,8 +1082,6 @@ ENTRY(user_inthandler120)
 	jra	ret_from_exception
 ENTRY(user_inthandler121)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+121,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1326,8 +1089,6 @@ ENTRY(user_inthandler121)
 	jra	ret_from_exception
 ENTRY(user_inthandler122)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+122,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1335,8 +1096,6 @@ ENTRY(user_inthandler122)
 	jra	ret_from_exception
 ENTRY(user_inthandler123)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+123,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1344,8 +1103,6 @@ ENTRY(user_inthandler123)
 	jra	ret_from_exception
 ENTRY(user_inthandler124)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+124,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1353,8 +1110,6 @@ ENTRY(user_inthandler124)
 	jra	ret_from_exception
 ENTRY(user_inthandler125)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+125,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1362,8 +1117,6 @@ ENTRY(user_inthandler125)
 	jra	ret_from_exception
 ENTRY(user_inthandler126)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+126,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1371,8 +1124,6 @@ ENTRY(user_inthandler126)
 	jra	ret_from_exception
 ENTRY(user_inthandler127)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+127,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1380,8 +1131,6 @@ ENTRY(user_inthandler127)
 	jra	ret_from_exception
 ENTRY(user_inthandler128)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+128,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1389,8 +1138,6 @@ ENTRY(user_inthandler128)
 	jra	ret_from_exception
 ENTRY(user_inthandler129)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+129,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1398,8 +1145,6 @@ ENTRY(user_inthandler129)
 	jra	ret_from_exception
 ENTRY(user_inthandler130)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+130,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1407,8 +1152,6 @@ ENTRY(user_inthandler130)
 	jra	ret_from_exception
 ENTRY(user_inthandler131)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+131,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1416,8 +1159,6 @@ ENTRY(user_inthandler131)
 	jra	ret_from_exception
 ENTRY(user_inthandler132)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+132,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1425,8 +1166,6 @@ ENTRY(user_inthandler132)
 	jra	ret_from_exception
 ENTRY(user_inthandler133)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+133,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1434,8 +1173,6 @@ ENTRY(user_inthandler133)
 	jra	ret_from_exception
 ENTRY(user_inthandler134)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+134,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1443,8 +1180,6 @@ ENTRY(user_inthandler134)
 	jra	ret_from_exception
 ENTRY(user_inthandler135)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+135,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1452,8 +1187,6 @@ ENTRY(user_inthandler135)
 	jra	ret_from_exception
 ENTRY(user_inthandler136)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+136,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1461,8 +1194,6 @@ ENTRY(user_inthandler136)
 	jra	ret_from_exception
 ENTRY(user_inthandler137)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+137,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1470,8 +1201,6 @@ ENTRY(user_inthandler137)
 	jra	ret_from_exception
 ENTRY(user_inthandler138)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+138,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1479,8 +1208,6 @@ ENTRY(user_inthandler138)
 	jra	ret_from_exception
 ENTRY(user_inthandler139)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+139,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1488,8 +1215,6 @@ ENTRY(user_inthandler139)
 	jra	ret_from_exception
 ENTRY(user_inthandler140)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+140,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1497,8 +1222,6 @@ ENTRY(user_inthandler140)
 	jra	ret_from_exception
 ENTRY(user_inthandler141)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+141,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1506,8 +1229,6 @@ ENTRY(user_inthandler141)
 	jra	ret_from_exception
 ENTRY(user_inthandler142)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+142,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1515,8 +1236,6 @@ ENTRY(user_inthandler142)
 	jra	ret_from_exception
 ENTRY(user_inthandler143)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+143,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1524,8 +1243,6 @@ ENTRY(user_inthandler143)
 	jra	ret_from_exception
 ENTRY(user_inthandler144)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+144,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1533,8 +1250,6 @@ ENTRY(user_inthandler144)
 	jra	ret_from_exception
 ENTRY(user_inthandler145)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+145,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1542,8 +1257,6 @@ ENTRY(user_inthandler145)
 	jra	ret_from_exception
 ENTRY(user_inthandler146)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+146,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1551,8 +1264,6 @@ ENTRY(user_inthandler146)
 	jra	ret_from_exception
 ENTRY(user_inthandler147)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+147,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1560,8 +1271,6 @@ ENTRY(user_inthandler147)
 	jra	ret_from_exception
 ENTRY(user_inthandler148)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+148,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1569,8 +1278,6 @@ ENTRY(user_inthandler148)
 	jra	ret_from_exception
 ENTRY(user_inthandler149)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+149,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1578,8 +1285,6 @@ ENTRY(user_inthandler149)
 	jra	ret_from_exception
 ENTRY(user_inthandler150)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+150,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1587,8 +1292,6 @@ ENTRY(user_inthandler150)
 	jra	ret_from_exception
 ENTRY(user_inthandler151)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+151,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1596,8 +1299,6 @@ ENTRY(user_inthandler151)
 	jra	ret_from_exception
 ENTRY(user_inthandler152)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+152,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1605,8 +1306,6 @@ ENTRY(user_inthandler152)
 	jra	ret_from_exception
 ENTRY(user_inthandler153)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+153,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1614,8 +1313,6 @@ ENTRY(user_inthandler153)
 	jra	ret_from_exception
 ENTRY(user_inthandler154)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+154,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1623,8 +1320,6 @@ ENTRY(user_inthandler154)
 	jra	ret_from_exception
 ENTRY(user_inthandler155)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+155,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1632,8 +1327,6 @@ ENTRY(user_inthandler155)
 	jra	ret_from_exception
 ENTRY(user_inthandler156)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+156,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1641,8 +1334,6 @@ ENTRY(user_inthandler156)
 	jra	ret_from_exception
 ENTRY(user_inthandler157)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+157,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1650,8 +1341,6 @@ ENTRY(user_inthandler157)
 	jra	ret_from_exception
 ENTRY(user_inthandler158)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+158,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1659,8 +1348,6 @@ ENTRY(user_inthandler158)
 	jra	ret_from_exception
 ENTRY(user_inthandler159)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+159,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1668,8 +1355,6 @@ ENTRY(user_inthandler159)
 	jra	ret_from_exception
 ENTRY(user_inthandler160)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+160,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1677,8 +1362,6 @@ ENTRY(user_inthandler160)
 	jra	ret_from_exception
 ENTRY(user_inthandler161)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+161,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1686,8 +1369,6 @@ ENTRY(user_inthandler161)
 	jra	ret_from_exception
 ENTRY(user_inthandler162)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+162,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1695,8 +1376,6 @@ ENTRY(user_inthandler162)
 	jra	ret_from_exception
 ENTRY(user_inthandler163)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+163,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1704,8 +1383,6 @@ ENTRY(user_inthandler163)
 	jra	ret_from_exception
 ENTRY(user_inthandler164)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+164,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1713,8 +1390,6 @@ ENTRY(user_inthandler164)
 	jra	ret_from_exception
 ENTRY(user_inthandler165)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+165,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1722,8 +1397,6 @@ ENTRY(user_inthandler165)
 	jra	ret_from_exception
 ENTRY(user_inthandler166)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+166,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1731,8 +1404,6 @@ ENTRY(user_inthandler166)
 	jra	ret_from_exception
 ENTRY(user_inthandler167)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+167,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1740,8 +1411,6 @@ ENTRY(user_inthandler167)
 	jra	ret_from_exception
 ENTRY(user_inthandler168)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+168,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1749,8 +1418,6 @@ ENTRY(user_inthandler168)
 	jra	ret_from_exception
 ENTRY(user_inthandler169)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+169,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1758,8 +1425,6 @@ ENTRY(user_inthandler169)
 	jra	ret_from_exception
 ENTRY(user_inthandler170)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+170,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1767,8 +1432,6 @@ ENTRY(user_inthandler170)
 	jra	ret_from_exception
 ENTRY(user_inthandler171)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+171,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1776,8 +1439,6 @@ ENTRY(user_inthandler171)
 	jra	ret_from_exception
 ENTRY(user_inthandler172)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+172,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1785,8 +1446,6 @@ ENTRY(user_inthandler172)
 	jra	ret_from_exception
 ENTRY(user_inthandler173)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+173,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1794,8 +1453,6 @@ ENTRY(user_inthandler173)
 	jra	ret_from_exception
 ENTRY(user_inthandler174)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+174,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1803,8 +1460,6 @@ ENTRY(user_inthandler174)
 	jra	ret_from_exception
 ENTRY(user_inthandler175)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+175,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1812,8 +1467,6 @@ ENTRY(user_inthandler175)
 	jra	ret_from_exception
 ENTRY(user_inthandler176)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+176,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1821,8 +1474,6 @@ ENTRY(user_inthandler176)
 	jra	ret_from_exception
 ENTRY(user_inthandler177)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+177,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1830,8 +1481,6 @@ ENTRY(user_inthandler177)
 	jra	ret_from_exception
 ENTRY(user_inthandler178)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+178,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1839,8 +1488,6 @@ ENTRY(user_inthandler178)
 	jra	ret_from_exception
 ENTRY(user_inthandler179)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+179,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1848,8 +1495,6 @@ ENTRY(user_inthandler179)
 	jra	ret_from_exception
 ENTRY(user_inthandler180)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+180,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1857,8 +1502,6 @@ ENTRY(user_inthandler180)
 	jra	ret_from_exception
 ENTRY(user_inthandler181)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+181,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1866,8 +1509,6 @@ ENTRY(user_inthandler181)
 	jra	ret_from_exception
 ENTRY(user_inthandler182)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+182,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1875,8 +1516,6 @@ ENTRY(user_inthandler182)
 	jra	ret_from_exception
 ENTRY(user_inthandler183)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+183,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1884,8 +1523,6 @@ ENTRY(user_inthandler183)
 	jra	ret_from_exception
 ENTRY(user_inthandler184)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+184,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1893,8 +1530,6 @@ ENTRY(user_inthandler184)
 	jra	ret_from_exception
 ENTRY(user_inthandler185)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+185,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1902,8 +1537,6 @@ ENTRY(user_inthandler185)
 	jra	ret_from_exception
 ENTRY(user_inthandler186)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+186,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1911,8 +1544,6 @@ ENTRY(user_inthandler186)
 	jra	ret_from_exception
 ENTRY(user_inthandler187)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+187,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1920,8 +1551,6 @@ ENTRY(user_inthandler187)
 	jra	ret_from_exception
 ENTRY(user_inthandler188)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+188,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1929,8 +1558,6 @@ ENTRY(user_inthandler188)
 	jra	ret_from_exception
 ENTRY(user_inthandler189)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+189,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1938,8 +1565,6 @@ ENTRY(user_inthandler189)
 	jra	ret_from_exception
 ENTRY(user_inthandler190)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+190,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1947,8 +1572,6 @@ ENTRY(user_inthandler190)
 	jra	ret_from_exception
 ENTRY(user_inthandler191)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+191,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -1956,8 +1579,6 @@ ENTRY(user_inthandler191)
 	jra	ret_from_exception
 ENTRY(user_inthandler192)
 	SAVE_ALL_INT
-	user_irqvec_fixup = . + 2
-
 	movel	%sp,%sp@-
 	movel	#VEC_USER+192,%sp@-		|  put vector # on stack
 	jsr	do_IRQ			|  process the IRQ
@@ -2017,6 +1638,26 @@ ENTRY(system_call)
 	movel	%a0@(%d0), %a0
 	jbsr	%a0@
 	movel	%d0,%sp@(PT_OFF_D0)	/* save the return value*/
+	
+/*
+ * Beware - when entering resume, prev (the current task) is
+ * in a0, next (the new task) is in a1, so don't change these
+ * registers until their contents are no longer needed.
+ */
+ENTRY(resume)
+	movel	%a0,%d1				/* save prev thread in d1 */
+	movew	%sr,%a0@(TASK_THREAD+THREAD_SR)	/* save sr */
+	SAVE_SWITCH_STACK
+	movel	%sp,%a0@(TASK_THREAD+THREAD_KSP) /* save kernel stack */
+	movel	%usp,%a3			/* save usp */
+	movel	%a3,%a0@(TASK_THREAD+THREAD_USP)
+
+	movel	%a1@(TASK_THREAD+THREAD_USP),%a3 /* restore user stack */
+	movel	%a3,%usp
+	movel	%a1@(TASK_THREAD+THREAD_KSP),%sp /* restore new thread stack */
+	RESTORE_SWITCH_STACK
+	movew	%a1@(TASK_THREAD+THREAD_SR),%sr	/* restore thread status reg */
+	rts	
 /* end copy from arch/m68k/68000/entry.S  */
 
 /* FIXME: not sure if this works, because the vector number is 

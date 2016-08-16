@@ -17,4 +17,6 @@ obj-$(CONFIG_M68EZ328)	+= m68EZ328.o
 obj-$(CONFIG_M68VZ328)	+= m68VZ328.o
 obj-$(CONFIG_ROM)	+= romvec.o
 
+ifndef CONFIG_ATARI
 extra-y 		:= head.o
+endif

@@ -44,10 +44,19 @@
 #include <asm/dvma.h>
 #endif
 #include <asm/natfeat.h>
-
+#define STRING2(x) #x
+#define STRING(x) STRING2(x)
 #if !FPSTATESIZE || !NR_IRQS
 #warning No CPU/platform type selected, your kernel will not work!
 #warning Are you building an allnoconfig kernel?
+#endif
+
+#ifndef CONFIG_MMU
+unsigned long memory_start;
+unsigned long memory_end;
+
+EXPORT_SYMBOL(memory_start);
+EXPORT_SYMBOL(memory_end);
 #endif
 
 unsigned long m68k_machtype;
@@ -245,12 +254,14 @@ void __init setup_arch(char **cmdline_p)
 	 * We should really do our own FPU check at startup.
 	 * [what do we do with buggy 68LC040s? if we have problems
 	 *  with them, we should add a test to check_bugs() below] */
+#ifndef CONFIG_M68000
 #ifndef CONFIG_M68KFPU_EMU_ONLY
 	/* clear the fpu if we have one */
 	if (m68k_fputype & (FPU_68881|FPU_68882|FPU_68040|FPU_68060|FPU_COLDFIRE)) {
 		volatile int zero = 0;
 		asm volatile ("frestore %0" : : "m" (zero));
 	}
+#endif
 #endif
 
 	if (CPU_IS_060) {
@@ -348,6 +359,12 @@ void __init setup_arch(char **cmdline_p)
 		panic("No configuration setup");
 	}
 
+/* FIXME_Matthias: unsure if this works */
+#ifndef CONFIG_MMU
+	memory_end = m68k_memory[0].addr+m68k_memory[0].size;
+	availmem = m68k_memory[0].size;
+#endif
+
 	paging_init();
 
 #ifdef CONFIG_NATFEAT
@@ -413,6 +430,8 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 #define LOOP_CYCLES_68060	(1)
 #define LOOP_CYCLES_COLDFIRE	(2)
 
+/* FIXME_Matthias: these macros do not seem to work with CONFIG_M68000 */
+#ifndef CONFIG_M68000
 	if (CPU_IS_020) {
 		cpu = "68020";
 		clockfactor = LOOP_CYCLES_68020;
@@ -432,6 +451,10 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 		cpu = "680x0";
 		clockfactor = 0;
 	}
+#else
+	cpu = "68000";
+	clockfactor = 16;
+#endif
 
 #ifdef CONFIG_M68KFPU_EMU_ONLY
 	fpu = "none(soft float)";
@@ -452,6 +475,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 		fpu = "none";
 #endif
 
+#ifndef CONFIG_M68000
 	if (m68k_mmutype & MMU_68851)
 		mmu = "68851";
 	else if (m68k_mmutype & MMU_68030)
@@ -468,6 +492,9 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 		mmu = "ColdFire";
 	else
 		mmu = "unknown";
+#else
+	mmu = "none";
+#endif
 
 	clockfreq = loops_per_jiffy * HZ * clockfactor;
 

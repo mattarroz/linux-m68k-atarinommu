@@ -43,6 +43,12 @@
 #include <linux/linkage.h>
 #include <linux/init.h>
 #include <asm/bootinfo.h>
+#include <asm/bootinfo-amiga.h>
+#include <asm/bootinfo-atari.h>
+#include <asm/bootinfo-hp300.h>
+#include <asm/bootinfo-mac.h>
+#include <asm/bootinfo-q40.h>
+#include <asm/bootinfo-vme.h>
 #include <asm/setup.h>
 #include <asm/entry.h>
 #include <asm/page.h>
@@ -156,6 +162,24 @@ L(\name):
         addql   #4,%sp
 .endm
 
+__INITDATA
+	.align	4
+	
+L(cputype):
+	.long	0
+L(phys_kernel_start):
+	.long	0
+L(kernel_end):
+	.long	0
+L(memory_start):
+	.long	0
+L(kernel_pgdir_ptr):
+	.long	0
+L(temp_mmap_mem):
+	.long	0
+_ramstart:
+	.long	0
+	
 __HEAD
 ENTRY(_stext)
 /*
@@ -260,7 +284,6 @@ ENTRY(__start)
 /*
  * Setup initial stack pointer
  */
-	lea	init_task,%curptr
 	lea	init_thread_union+THREAD_SIZE,%sp
 
 
@@ -307,22 +330,7 @@ func_return     get_bi_record
 __FINIT
 	.data
 	.align	4
-
-L(cputype):
-        .long   0
-L(phys_kernel_start):
-        .long   0
-L(kernel_end):
-        .long   0
-L(memory_start):
-        .long   0
-L(kernel_pgdir_ptr):
-        .long   0
-L(temp_mmap_mem):
-        .long   0
-_ramstart:
-	.long	0
-
+	
 availmem:
 	.long	0
 m68k_pgtable_cachemode:

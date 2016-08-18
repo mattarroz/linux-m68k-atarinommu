@@ -776,5 +776,9 @@ EXPORT_SYMBOL(irq_canonicalize);
 asmlinkage void handle_badint(struct pt_regs *regs)
 {
 	atomic_inc(&irq_err_count);
+#ifndef CONFIG_M68000
 	pr_warn("unexpected interrupt from %u\n", regs->vector);
+#else
+	pr_warn("unexpected interrupt\n");
+#endif
 }

@@ -1,4 +1,4 @@
-#if defined(CONFIG_MMU) && !defined(CONFIG_COLDFIRE)
+#if (defined(CONFIG_MMU) && !defined(CONFIG_COLDFIRE)) || defined(CONFIG_ATARI)
 PHDRS
 {
   text PT_LOAD FILEHDR PHDRS FLAGS (7);

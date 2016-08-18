@@ -46,9 +46,12 @@
 #include <asm/natfeat.h>
 #define STRING2(x) #x
 #define STRING(x) STRING2(x)
+
+#ifdef CONFIG_MMU
 #if !FPSTATESIZE || !NR_IRQS
 #warning No CPU/platform type selected, your kernel will not work!
 #warning Are you building an allnoconfig kernel?
+#endif
 #endif
 
 #ifndef CONFIG_MMU
@@ -240,6 +243,12 @@ void __init setup_arch(char **cmdline_p)
 	int i;
 #endif
 
+#ifdef CONFIG_ATARI
+#ifndef CONFIG_MMU
+	int bootmap_size;
+#endif
+#endif
+
 	/* The bootinfo is located right after the kernel */
 	if (!CPU_IS_COLDFIRE)
 		m68k_parse_bootinfo((const struct bi_record *)_end);
@@ -361,8 +370,28 @@ void __init setup_arch(char **cmdline_p)
 
 /* FIXME_Matthias: unsure if this works */
 #ifndef CONFIG_MMU
-	memory_end = m68k_memory[0].addr+m68k_memory[0].size;
-	availmem = m68k_memory[0].size;
+	memory_start = (unsigned long) &_ramstart;
+	memory_end = memory_start+m68k_memory[0].size;
+	availmem = memory_end-memory_start;
+	
+	/*
+	 * Give all the memory to the bootmap allocator, tell it to put the
+	 * boot mem_map at the start of memory.
+	 */
+	min_low_pfn = PFN_DOWN(memory_start);
+	max_pfn = max_low_pfn = PFN_DOWN(memory_end);
+
+	bootmap_size = init_bootmem_node(
+			NODE_DATA(0),
+			min_low_pfn,		/* map goes here */
+			PFN_DOWN(PAGE_OFFSET),
+			max_pfn);
+	/*
+	 * Free the usable memory, we have to make sure we do not free
+	 * the bootmem bitmap so we then reserve it after freeing it :-)
+	 */
+	free_bootmem(memory_start, memory_end - memory_start);
+	reserve_bootmem(memory_start, bootmap_size, BOOTMEM_DEFAULT);
 #endif
 
 	paging_init();
@@ -387,8 +416,11 @@ void __init setup_arch(char **cmdline_p)
 #endif
 
 #ifdef CONFIG_ATARI
+/* FIXME_Matthias: not sure if this is right */
+//#ifdef CONFIG_MMU
 	if (MACH_IS_ATARI)
 		atari_stram_reserve_pages((void *)availmem);
+//#endif
 #endif
 #ifdef CONFIG_SUN3X
 	if (MACH_IS_SUN3X) {

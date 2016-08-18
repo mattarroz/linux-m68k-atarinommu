@@ -783,6 +783,8 @@ asmlinkage void buserr_c(struct frame *fp)
 	}
 #endif /* CONFIG_COLDFIRE && CONFIG_MMU */
 
+/* FIXME_Matthias: bad hack */
+#ifndef CONFIG_M68000
 	switch (fp->ptregs.format) {
 #if defined (CONFIG_M68060)
 	case 4:				/* 68060 access error */
@@ -805,6 +807,7 @@ asmlinkage void buserr_c(struct frame *fp)
 	  pr_debug("Unknown SIGSEGV - 4\n");
 	  force_sig(SIGSEGV, current);
 	}
+#endif
 }
 
 

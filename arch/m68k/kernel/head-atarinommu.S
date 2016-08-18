@@ -62,8 +62,6 @@
 .globl m68k_supervisor_cachemode
 .globl _ramstart
 
-
-
 /* Miscellaneous definitions */
 PAGESIZE	= 4096
 PAGESHIFT	= 12
@@ -171,8 +169,6 @@ L(phys_kernel_start):
 	.long	0
 L(kernel_end):
 	.long	0
-L(memory_start):
-	.long	0
 L(kernel_pgdir_ptr):
 	.long	0
 L(temp_mmap_mem):
@@ -265,7 +261,7 @@ ENTRY(__start)
         movel   %a0,%d0
         andw    #-PAGESIZE,%d0
 
-        lea     L(memory_start),%a0
+        movel   %a0,_ramstart
         movel   %d0,%a0@
         lea     L(kernel_end),%a0
         movel   %d0,%a0@
@@ -278,7 +274,7 @@ ENTRY(__start)
  * (The bootmem allocator requires now the physicall address.)
  */
 
-        movel   L(memory_start),availmem
+        movel   memory_start,availmem
 
 
 /*

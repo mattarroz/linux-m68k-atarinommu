@@ -89,19 +89,21 @@ void __init paging_init(void)
 	 * page_alloc get different views of the world.
 	 */
 	unsigned long end_mem = memory_end & PAGE_MASK;
+/* FIXME_Matthias: Not sure if commenting this out is ok */
 	unsigned long zones_size[MAX_NR_ZONES] = { 0, };
 
 	high_memory = (void *) end_mem;
-
+/* FIXME_Matthias: Not sure if commenting this out is ok */
 	empty_zero_page = alloc_bootmem_pages(PAGE_SIZE);
 
 	/*
 	 * Set up SFC/DFC registers (user data space).
 	 */
 	set_fs (USER_DS);
+/* FIXME_Matthias: Not sure if commenting this out is ok */
 
 	zones_size[ZONE_DMA] = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
-	free_area_init(zones_size);
+	free_area_init(zones_size); 
 }
 
 #endif /* CONFIG_MMU */

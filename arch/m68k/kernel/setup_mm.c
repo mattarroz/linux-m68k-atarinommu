@@ -284,7 +284,14 @@ void __init setup_arch(char **cmdline_p)
 			     : : "d" (pcr | 0x20));
 		}
 	}
-
+#ifndef CONFIG_MMU
+	memory_start = PAGE_ALIGN(_ramstart);
+//	m68k_memory[0].addr = memory_start;
+/* FIXME_Matthias: not sure if -4 is necessary */
+//	m68k_memory[0].size -= PAGE_SIZE;
+	memory_end = m68k_memory[0].size;
+	availmem = memory_end-memory_start;
+#endif
 	init_mm.start_code = PAGE_OFFSET;
 	init_mm.end_code = (unsigned long)_etext;
 	init_mm.end_data = (unsigned long)_edata;
@@ -370,10 +377,6 @@ void __init setup_arch(char **cmdline_p)
 
 /* FIXME_Matthias: unsure if this works */
 #ifndef CONFIG_MMU
-	memory_start = (unsigned long) &_ramstart;
-	memory_end = memory_start+m68k_memory[0].size;
-	availmem = memory_end-memory_start;
-	
 	/*
 	 * Give all the memory to the bootmap allocator, tell it to put the
 	 * boot mem_map at the start of memory.
@@ -417,10 +420,10 @@ void __init setup_arch(char **cmdline_p)
 
 #ifdef CONFIG_ATARI
 /* FIXME_Matthias: not sure if this is right */
-//#ifdef CONFIG_MMU
+#ifdef CONFIG_MMU
 	if (MACH_IS_ATARI)
 		atari_stram_reserve_pages((void *)availmem);
-//#endif
+#endif
 #endif
 #ifdef CONFIG_SUN3X
 	if (MACH_IS_SUN3X) {

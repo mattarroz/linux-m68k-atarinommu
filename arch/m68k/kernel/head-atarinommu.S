@@ -262,11 +262,12 @@ ENTRY(__start)
         andw    #-PAGESIZE,%d0
 
         movel   %a0,_ramstart
-        movel   %d0,%a0@
+/* FIXME_Matthias: don't know what the next line is used for */
+//        movel   %d0,%a0@
         lea     L(kernel_end),%a0
-        movel   %d0,%a0@
+//        movel   %d0,%a0@
 	lea	_ramstart,%a0
-	movel	%d0,%a0@
+//	movel	%d0,%a0@
 
 /*
  * After this point no new memory is allocated and

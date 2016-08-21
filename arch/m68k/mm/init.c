@@ -44,6 +44,10 @@ extern void init_pointer_table(unsigned long ptable);
 extern pmd_t *zero_pgtable;
 #endif
 
+#ifdef CONFIG_ATARI
+extern long unsigned int availmem;
+#endif
+
 #ifdef CONFIG_MMU
 
 pg_data_t pg_data_map[MAX_NUMNODES];
@@ -82,6 +86,7 @@ void __init m68k_setup_node(int node)
  * The parameters are pointers to where to stick the starting and ending
  * addresses of available kernel virtual memory.
  */
+
 void __init paging_init(void)
 {
 	/*
@@ -101,10 +106,16 @@ void __init paging_init(void)
 	 */
 	set_fs (USER_DS);
 /* FIXME_Matthias: Not sure if commenting this out is ok */
-
+#ifndef CONFIG_ATARI
 	zones_size[ZONE_DMA] = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
 	free_area_init(zones_size); 
+#else
+	zones_size[ZONE_DMA] = m68k_memory[0].size >> PAGE_SHIFT;
+	free_area_init_node(0, zones_size,
+				    m68k_memory[0].addr >> PAGE_SHIFT, NULL);
+#endif
 }
+
 
 #endif /* CONFIG_MMU */
 

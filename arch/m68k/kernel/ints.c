@@ -754,6 +754,9 @@ void m68k_irq_shutdown(struct irq_data *data)
 {
 	unsigned int irq = data->irq;
 
+/* FIXME_Matthias: Not sure if bad_inthandler is a good idea for 68000
+ * because it makes it impossible to determine source
+ */
 	if (irq <= IRQ_AUTO_7)
 		vectors[VEC_SPUR + irq] = bad_inthandler;
 	else

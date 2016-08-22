@@ -464,6 +464,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
 #define LOOP_CYCLES_68040	(3)
 #define LOOP_CYCLES_68060	(1)
 #define LOOP_CYCLES_COLDFIRE	(2)
+#define	CPU_INSTR_PER_JIFFY	16
 
 /* FIXME_Matthias: these macros do not seem to work with CONFIG_M68000 */
 #ifndef CONFIG_M68000

@@ -160,6 +160,30 @@ ENTRY(ret_from_user_rt_signal)
  */
 ENTRY(ret_from_exception)
 .Lret_from_exception:
+	btst	#5,%sp@(PT_OFF_SR)	/* check if returning to kernel*/
+	jeq	Luser_return		/* if so, skip resched, signals*/
+
+Lkernel_return:
+	RESTORE_ALL
+
+Luser_return:
+	/* only allow interrupts when we are really the last one on the*/
+	/* kernel stack, otherwise stack overflow can occur during*/
+	/* heavy interrupt load*/
+	andw	#ALLOWINT,%sr
+
+	movel	%sp,%d1			/* get thread_info pointer */
+	andl	#-THREAD_SIZE,%d1
+	movel	%d1,%a2
+1:
+	move	%a2@(TINFO_FLAGS),%d1	/* thread_info->flags */
+	jne	Lwork_to_do
+	RESTORE_ALL
+
+Lwork_to_do:
+	movel	%a2@(TINFO_FLAGS),%d1	/* thread_info->flags */
+	btst	#TIF_NEED_RESCHED,%d1
+	jne	reschedule
 
 #ifdef CONFIG_M68000
 	  /* The original 68000 CPU does not store the vector number

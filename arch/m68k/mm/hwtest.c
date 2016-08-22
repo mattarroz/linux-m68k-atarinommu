@@ -43,21 +43,15 @@ int hwreg_present(volatile void *regp)
 #ifdef CONFIG_M68000
 	__asm__ __volatile__ (
 		"movel %4@,%2\n\t"		/* save bus error vector adress */
-		"orw  #0x1000,%%sr\n\t"	/* set superuser bit */
-		"nop\n\t"
 		"movel #Lberr1,%4@\n\t"
 		"movel %/sp,%1\n\t" /* save SP */
 		"moveq #0,%0\n\t"
 		"tstb %3@\n\t"
 		"nop\n\t"
-		"movel %2,%4@\n\t" /* restore  bus error vector adress */
-		"orw  #0x1000,%%sr\n\t" /* clear superuser bit */
 		"moveq #1,%0\n"
 	"Lberr1:\n\t"
 		"movel %1,%/sp\n\t" /* restore SP */
-		"orw  #0x1000,%%sr\n\t"	/* set superuser bit */
 		"movel %2,%4@\n\t" /* restore  bus error vector adress */
-		"orw  #0x1000,%%sr\n\t" /* clear superuser bit */
 		: "=&d" (ret), "=&r" (save_sp), "=&r" (save_buserr)
 		: "a" (regp), "a" (VEC_BUSERR*4)
 	);
@@ -96,23 +90,30 @@ int hwreg_write(volatile void *regp, unsigned short val)
 #ifndef CONFIG_M68000
 	long save_vbr;
 	long tmp_vectors[3];
+#else
+	unsigned long save_buserr;
 #endif
 
 	local_irq_save(flags);
 /* The 68000 does not have a VBR */
 #ifdef CONFIG_M68000
 	__asm__ __volatile__ (
-		"movel %/sp,%1\n\t" /* FIXME_Matthias: not sure if this line is necessary */
+		"movel %/sp,%1\n\t"
+		"movel %5@,%2\n\t"		/* save bus error vector adress */
+		"movel #Lberr2,%5@\n\t"
 		"moveq #0,%0\n\t"
-		"movew %3,%2@\n\t"
+		"movew %4,%3@\n\t"
 		"nop\n\t"
 		/*
 		 * If this nop isn't present, 'ret' may already be loaded
 		 * with 1 at the time the bus error happens!
 		 */
 		"moveq #1,%0\n"
-		: "=&d" (ret), "=&r" (save_sp)
-		: "a" (regp), "g" (val)
+"Lberr2:\n\t"
+		"movel %1,%/sp\n\t" /* restore SP */
+		"movel %2,%5@\n\t" /* restore  bus error vector adress */	
+		: "=&d" (ret), "=&r" (save_sp), "=&r" (save_buserr)
+		: "a" (regp), "g" (val), "a" (VEC_BUSERR*4)
 	);
 #else
 	__asm__ __volatile__ (

@@ -2430,10 +2430,11 @@ static void atafb_set_disp(struct fb_info *info)
 {
 	atafb_get_var(&info->var, info);
 	atafb_get_fix(&info->fix, info);
-
+#ifdef ATAFB_EXT
 	/* Note: smem_start derives from phys_screen_base, not screen_base! */
 	info->screen_base = (external_addr ? external_screen_base :
 				atari_stram_to_virt(info->fix.smem_start));
+#endif
 }
 
 static int atafb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,

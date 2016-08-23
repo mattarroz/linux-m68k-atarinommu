@@ -1856,8 +1856,10 @@ fbmem_init(void)
 {
 	int ret;
 
+#ifdef CONFIG_PROC_FS
 	if (!proc_create("fb", 0, NULL, &fb_proc_fops))
 		return -ENOMEM;
+#endif
 
 	ret = register_chrdev(FB_MAJOR, "fb", &fb_fops);
 	if (ret) {

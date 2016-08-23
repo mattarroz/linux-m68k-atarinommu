@@ -2430,10 +2430,14 @@ static void atafb_set_disp(struct fb_info *info)
 {
 	atafb_get_var(&info->var, info);
 	atafb_get_fix(&info->fix, info);
-#ifdef ATAFB_EXT
+/* FIXME_Matthias: this is a workaround, should be fixed in a better way */
+#ifdef CONFIG_MMU
 	/* Note: smem_start derives from phys_screen_base, not screen_base! */
 	info->screen_base = (external_addr ? external_screen_base :
 				atari_stram_to_virt(info->fix.smem_start));
+#else
+	info->screen_base = (void *) info->fix.smem_start;
+	printk("Set screen base to %lx\n", (unsigned long) info->screen_base);
 #endif
 }
 
@@ -3222,6 +3226,10 @@ int __init atafb_init(void)
 				 &fb_info.modelist);
 
 	atafb_set_disp(&fb_info);
+#ifndef CONFIG_MMU
+	fb_info.screen_base = (void*) phys_screen_base;
+	printk("Set screen base to %lx\n", (unsigned long) fb_info.screen_base);
+#endif
 
 	fb_alloc_cmap(&(fb_info.cmap), 1 << fb_info.var.bits_per_pixel, 0);
 

@@ -419,11 +419,8 @@ void __init setup_arch(char **cmdline_p)
 #endif
 
 #ifdef CONFIG_ATARI
-/* FIXME_Matthias: not sure if this is right */
-#ifdef CONFIG_MMU
 	if (MACH_IS_ATARI)
 		atari_stram_reserve_pages((void *)availmem);
-#endif
 #endif
 #ifdef CONFIG_SUN3X
 	if (MACH_IS_SUN3X) {
